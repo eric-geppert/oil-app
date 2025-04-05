@@ -31,6 +31,6 @@ for future users: pip3 install -r requirements.txt
   - company_to
   - merchandise_transacted (need to make this an Object_id)
   - amount_of_merch_transacted
-  - merchandise_types
+  - merchandise_type
   - barrels of oil
   - service1

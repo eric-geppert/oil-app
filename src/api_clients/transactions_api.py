@@ -28,7 +28,7 @@ class TransactionsAPI:
                 - created_at (datetime): Creation timestamp
                 - merchandise_transacted (str): ID of the merchandise transacted
                 - amount_of_merch_transacted (float): Amount of merchandise transacted
-                - merchandise_types (List[str]): Types of merchandise involved
+                - merchandise_type (str): Type of merchandise involved
                 - barrels_of_oil (float, optional): Number of barrels of oil involved
                 - service (str, optional): Service provided
                 
@@ -202,5 +202,5 @@ class TransactionsAPI:
             List[Dict]: List of transactions involving the specified merchandise type
         """
         return list(transactions_collection.find({
-            "merchandise_types": merchandise_type
+            "merchandise_type": merchandise_type
         })) 

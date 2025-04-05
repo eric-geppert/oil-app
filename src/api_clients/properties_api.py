@@ -18,13 +18,13 @@ class PropertiesAPI:
         
         Args:
             property_data (Dict): Property information including:
-                - name (str): Property name
+                - name (str): Property name (MANDATORY)
                 - address (Dict): Address information (MANDATORY):
                     - street (str): Street address
                     - city (str): City
                     - state (str): State
                     - zip_code (str): ZIP code
-                - owners (List[Dict]): List of owners with fields:
+                - owners (List[Dict]): List of owners with fields (MANDATORY):
                     - name (str): Owner name
                     - contact_info (Dict): Contact information
                 - created_at (datetime): Creation timestamp
@@ -33,11 +33,13 @@ class PropertiesAPI:
             str: The ID of the newly created property
             
         Raises:
-            ValueError: If the address field is missing or empty
+            ValueError: If any mandatory field is missing or empty
         """
-        # Validate that address field is present and not empty
-        if "address" not in property_data or not property_data["address"]:
-            raise ValueError("The 'address' field is mandatory and cannot be empty")
+        # Validate all mandatory fields
+        mandatory_fields = ["name", "address", "owners"]
+        for field in mandatory_fields:
+            if field not in property_data or not property_data[field]:
+                raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
             
         # Add creation timestamp if not provided
         if "created_at" not in property_data:

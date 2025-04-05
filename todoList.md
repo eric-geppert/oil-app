@@ -23,9 +23,13 @@ Done:
 - company_ownership_table ^
 - create transaction table ^
 - added company to db from code
+- added apis for all tables
+- added validation on the create_document for each api
+- created validation record from api
 
 todays todo:
 
+- check id validations on creates
 - pull those then use the first one to push a tranaction record
 - create admin functionality to be able to view income by company
 - create admin functionality to be able to view income by property
@@ -34,14 +38,17 @@ todays todo:
 
 next time:
 
-- add additional merchandise_types table, (talk it over with m first)
 - add 0.0.0.0/0 (allow all traffic) for temporary 6 hours (atlas network url saved in bookmarks)
-- fix why adding currentIP address doesn't work (chatgpt had suggestions of ssl cert) (also try adding &ssl to the end of the connection string url?)
 
 Todo:
 
 - add 0.0.0 ip addr temporarily^^^
 - abstract out connection string pw
-- build basic object for payments
+- add additional merchandise_type table, (talk it over with m first)
+- fix why adding currentIP address doesn't work (chatgpt had suggestions of ssl cert) (also try adding &ssl to the end of the connection string url?)
 
-- even start fe at all?
+Later on:
+
+- sub divide property use case?
+- Make add another field for created by user or company and only let that company/user edit!
+- Front end
