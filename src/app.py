@@ -10,8 +10,10 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from utils import get_all_documents
+from datetime import datetime
+from api_clients.companies_api import CompaniesAPI
 
-print("at top")
+# print("at top")
 # load_dotenv()
 # todo: abstract later
 # CONNECTION_STRING = os.getenv("mongodb+srv://ericgeppert04:Henry4likes2run@cluster0.pls3v.mongodb.net/")
@@ -22,21 +24,35 @@ print("at top")
 uri = "mongodb+srv://ericgeppert04:Henry4likes2run@cluster0.pls3v.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri)
 
-try:
-    client.admin.command('ping')
-    print("Connected successfully!")
-except Exception as e:
-    print(f"Connection failed: {e}")
+# try:
+#     client.admin.command('ping')
+#     print("Connected successfully!")
+# except Exception as e:
+#     print(f"Connection failed: {e}")
 
 
 
-db = client["sample_mflix"] # Replace with your database name
-collection = db["users"] # Replace with your collection name
+db = client["db1"] # Replace with your database name
+collection = db["properties"] # Replace with your collection name
 
 # Create a document
-new_document = {"name": "Example", "value": 123}
-print("all docs:")
-get_all_documents(collection)
+# new_document = {"name": "Example", "value": 123}
+# print("all docs:")
+# get_all_documents(collection)
+
+company_data = {
+    "name": "Example Oil Co",
+    "description": "An example oil company",
+    "contact_info": {
+        "email": "contact@example.com",
+        "phone": "123-456-7890"
+    },
+    "created_at": datetime.now()
+}
+company_id = CompaniesAPI.create_company(company_data)
+print(f"Created company with ID: {company_id}") 
+
+
 # inserted_id = create_document(collection,new_document)
 # print(f"Inserted document with ID: {inserted_id}")
 
