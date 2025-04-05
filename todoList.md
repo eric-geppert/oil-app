@@ -13,10 +13,12 @@ Done:
 - added requirments.txt
 - got python3 working properly with venv and requirments.txt better docs so this will be faster next time
 
+---
+
 4/5/25:
 
-- \*\*downloaded cursur and used it to generate companies_api (very happy with it)
-- create property table (with first maually created document inserted via mongodb compass)
+- downloaded cursur and used it to generate companies_api (very happy with it)
+- **create property table (with first maually created document inserted via mongodb compass)**
 - companies table ^
 - company_ownership_table ^
 - create transaction table ^
@@ -25,6 +27,10 @@ Done:
 todays todo:
 
 - pull those then use the first one to push a tranaction record
+- create admin functionality to be able to view income by company
+- create admin functionality to be able to view income by property
+
+---
 
 next time:
 
