@@ -20,7 +20,9 @@ class TransactionsAPI:
         
         Args:
             transaction_data (Dict): Transaction information including:
-                - amount (float): Transaction amount (MANDATORY)
+                - gross_amount (float): Gross transaction amount (MANDATORY)
+                - net_amount (float): Net transaction amount after deductions
+                - taxes_paid_amount (float): Amount paid in taxes
                 - date (datetime): Transaction date (MANDATORY)
                 - property_id (str): ID of the property involved (MANDATORY)
                 - company_from_id (str): ID of the company paying (MANDATORY)
@@ -39,7 +41,7 @@ class TransactionsAPI:
             ValueError: If required fields are missing or if property_id/company IDs don't exist
         """
         # Validate required fields
-        required_fields = ["amount", "date", "property_id", "company_from_id", "company_to_id"]
+        required_fields = ["gross_amount", "date", "property_id", "company_from_id", "company_to_id"]
         for field in required_fields:
             if field not in transaction_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
@@ -124,7 +126,7 @@ class TransactionsAPI:
         Search for transactions based on specific criteria.
         
         Args:
-            query (Dict): Search criteria (e.g., {"amount": {"$gt": 1000}})
+            query (Dict): Search criteria (e.g., {"gross_amount": {"$gt": 1000}})
             
         Returns:
             List[Dict]: List of matching transaction documents
@@ -203,4 +205,46 @@ class TransactionsAPI:
         """
         return list(transactions_collection.find({
             "merchandise_type": merchandise_type
-        })) 
+        }))
+        
+    @staticmethod
+    def get_transactions_by_amount_range(min_amount: float, max_amount: float, amount_type: str = "gross_amount") -> List[Dict]:
+        """
+        Get all transactions within an amount range.
+        
+        Args:
+            min_amount (float): Minimum amount
+            max_amount (float): Maximum amount
+            amount_type (str): Type of amount to filter by (gross_amount, net_amount, taxes_paid_amount)
+            
+        Returns:
+            List[Dict]: List of transactions within the specified amount range
+        """
+        if amount_type not in ["gross_amount", "net_amount", "taxes_paid_amount"]:
+            raise ValueError("Amount type must be one of: gross_amount, net_amount, taxes_paid_amount")
+            
+        return list(transactions_collection.find({
+            amount_type: {
+                "$gte": min_amount,
+                "$lte": max_amount
+            }
+        }))
+        
+    @staticmethod
+    def get_total_transactions_by_property(property_id: str, amount_type: str = "gross_amount") -> float:
+        """
+        Calculate the total transaction amount for a property.
+        
+        Args:
+            property_id (str): The ID of the property
+            amount_type (str): Type of amount to sum (gross_amount, net_amount, taxes_paid_amount)
+            
+        Returns:
+            float: Total transaction amount for the specified property
+        """
+        if amount_type not in ["gross_amount", "net_amount", "taxes_paid_amount"]:
+            raise ValueError("Amount type must be one of: gross_amount, net_amount, taxes_paid_amount")
+            
+        transactions = list(transactions_collection.find({"property_id": property_id}))
+        total_amount = sum(transaction.get(amount_type, 0) for transaction in transactions)
+        return total_amount 

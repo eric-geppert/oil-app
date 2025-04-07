@@ -14,7 +14,7 @@ from datetime import datetime
 from api_clients.companies_api import CompaniesAPI
 from api_clients.properties_api import PropertiesAPI
 from api_clients.transactions_api import TransactionsAPI
-
+from api_clients.company_ownership_api import CompanyOwnershipAPI
 # print("at top")
 # load_dotenv()
 # todo: abstract later
@@ -69,22 +69,39 @@ collection = db["properties"] # Replace with your collection name
 # print(f"Created property with ID: {property_id}") 
 
 # Example of creating a transaction
-transaction_data = {
-    "amount": 50000.00,
-    "date": datetime.now(),
+# transaction_data = {
+#     "amount": 50000.00,
+#     "date": datetime.now(),
+#     "property_id": "67f15c14e28ed6d05e160734",  # Replace with actual property ID
+#     "company_from_id": "67f14a5fe7a9f8ab13b26488", # Replace with actual company ID (paying)
+#     "company_to_id": "67f14f91e7a9f8ab13b2649d", # Replace with actual company ID (receiving)
+#     "merchandise_transacted": "crude_oil",
+#     "amount_of_merch_transacted": 1000.0,
+#     "merchandise_type": "natural gas",
+#     "barrels_of_oil": 1000.0,
+#     "service": "oil_sale",
+#     "created_at": datetime.now()
+# }
+
+# try:
+#     transaction_id = TransactionsAPI.create_transaction(transaction_data)
+#     print(f"Created transaction with ID: {transaction_id}")
+# except ValueError as e:
+#     print(f"Error creating transaction: {e}")
+
+# Example of creating a company ownership
+company_ownership_data = {
     "property_id": "67f15c14e28ed6d05e160734",  # Replace with actual property ID
-    "company_from_id": "67f14a5fe7a9f8ab13b26488", # Replace with actual company ID (paying)
-    "company_to_id": "67f14f91e7a9f8ab13b2649d", # Replace with actual company ID (receiving)
-    "merchandise_transacted": "crude_oil",
-    "amount_of_merch_transacted": 1000.0,
-    "merchandise_type": "natural gas",
-    "barrels_of_oil": 1000.0,
-    "service": "oil_sale",
-    "created_at": datetime.now()
+    "company_id": "67f14a5fe7a9f8ab13b26488",  # Replace with actual company ID
+    "percentage_ownership": 50.0,
+    "interest_type": "working",
+    "well_type": "oil"
 }
 
 try:
-    transaction_id = TransactionsAPI.create_transaction(transaction_data)
-    print(f"Created transaction with ID: {transaction_id}")
+    company_ownership_id = CompanyOwnershipAPI.create_company_ownership(company_ownership_data)
+    print(f"Created company ownership with ID: {company_ownership_id}")
 except ValueError as e:
-    print(f"Error creating transaction: {e}")
+    print(f"Error creating company ownership: {e}")
+
+# Example of creating a user
