@@ -170,9 +170,9 @@ function Transactions() {
               <td>
                 {new Date(transaction.transaction_date).toLocaleDateString()}
               </td>
-              <td>${transaction.gross_amount.toFixed(2)}</td>
-              <td>${transaction.net_amount.toFixed(2)}</td>
-              <td>${transaction.taxes_paid_amount.toFixed(2)}</td>
+              <td>${Number(transaction.gross_amount || 0).toFixed(2)}</td>
+              <td>${Number(transaction.net_amount || 0).toFixed(2)}</td>
+              <td>${Number(transaction.taxes_paid_amount || 0).toFixed(2)}</td>
               <td>{transaction.description}</td>
               <td>{transaction.status}</td>
               <td>
