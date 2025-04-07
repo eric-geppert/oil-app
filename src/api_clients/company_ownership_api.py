@@ -19,31 +19,28 @@ class CompanyOwnershipAPI:
         Create a new company ownership record in the database.
         
         Args:
-            ownership_data (Dict): Company ownership information including:
-                - property_id (str): ID of the property being leased (MANDATORY)
-                - company_id (str): ID of the company leasing the property (MANDATORY)
-                - percentage_ownership (float): Percentage ownership (MANDATORY)
-                - interest_type (str): Type of interest (working/royalty) (MANDATORY)
-                - well_type (str, optional): Type of well (e.g., oil/natural gas)
+            ownership_data (Dict): Ownership information including:
+                - company_id (str): ID of the company (MANDATORY)
+                - property_id (str): ID of the property (MANDATORY)
+                - interest_type (str): Type of interest (e.g., royalty, working) (MANDATORY)
+                - percentage (float): Percentage of ownership (MANDATORY)
+                - is_current_owner (bool): Whether the company is the current owner (MANDATORY)
+                - date_from (datetime): Start date of ownership (MANDATORY)
+                - date_to (datetime, optional): End date of ownership (None if is_current_owner is True else MANDATORY)
+                - well_type (str, optional): Type of well (e.g., vertical, horizontal, directional)
                 - created_at (datetime): Creation timestamp
                 
         Returns:
-            str: The ID of the newly created company ownership record
+            str: The ID of the newly created ownership record
             
         Raises:
-            ValueError: If required fields are missing or if property_id/company_id don't exist
+            ValueError: If required fields are missing or if company_id/property_id don't exist
         """
         # Validate required fields
-        required_fields = ["property_id", "company_id", "percentage_ownership", "interest_type"]
+        required_fields = ["company_id", "property_id", "interest_type", "percentage", "is_current_owner", "date_from"]
         for field in required_fields:
             if field not in ownership_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
-        
-        # Validate that property_id exists in the properties collection
-        property_id = ownership_data["property_id"]
-        property_exists = properties_collection.find_one({"_id": ObjectId(property_id)})
-        if not property_exists:
-            raise ValueError(f"Property with ID '{property_id}' does not exist in the database")
         
         # Validate that company_id exists in the companies collection
         company_id = ownership_data["company_id"]
@@ -51,10 +48,33 @@ class CompanyOwnershipAPI:
         if not company_exists:
             raise ValueError(f"Company with ID '{company_id}' does not exist in the database")
         
-        # Validate interest_type is either 'working' or 'royalty'
-        interest_type = ownership_data["interest_type"]
-        if interest_type not in ["working", "royalty"]:
-            raise ValueError("Interest type must be either 'working' or 'royalty'")
+        # Validate that property_id exists in the properties collection
+        property_id = ownership_data["property_id"]
+        property_exists = properties_collection.find_one({"_id": ObjectId(property_id)})
+        if not property_exists:
+            raise ValueError(f"Property with ID '{property_id}' does not exist in the database")
+        
+        # Validate percentage is between 0 and 100
+        percentage = ownership_data["percentage"]
+        if not (0 <= percentage <= 100):
+            raise ValueError("Percentage must be between 0 and 100")
+            
+        # Validate date_to is None if is_current_owner is True
+        is_current_owner = ownership_data["is_current_owner"]
+        if is_current_owner:
+            if "date_to" in ownership_data and ownership_data["date_to"] is not None:
+                raise ValueError("date_to must be None when is_current_owner is True")
+        else:
+            # date_to is mandatory when is_current_owner is False
+            if "date_to" not in ownership_data or ownership_data["date_to"] is None:
+                raise ValueError("date_to is mandatory when is_current_owner is False")
+            
+        # Validate date_to is on or after date_from if provided
+        if "date_to" in ownership_data and ownership_data["date_to"] is not None:
+            date_from = ownership_data["date_from"]
+            date_to = ownership_data["date_to"]
+            if date_to <= date_from:
+                raise ValueError("date_to must be after date_from")
         
         # Add creation timestamp if not provided
         if "created_at" not in ownership_data:
@@ -68,10 +88,10 @@ class CompanyOwnershipAPI:
         Retrieve a company ownership record by its ID.
         
         Args:
-            ownership_id (str): The ID of the company ownership record to retrieve
+            ownership_id (str): The ID of the ownership record to retrieve
             
         Returns:
-            Optional[Dict]: The company ownership document if found, None otherwise
+            Optional[Dict]: The ownership document if found, None otherwise
         """
         return get_document({"_id": ObjectId(ownership_id)})
 
@@ -81,7 +101,7 @@ class CompanyOwnershipAPI:
         Retrieve all company ownership records from the database.
         
         Returns:
-            List[Dict]: List of all company ownership documents
+            List[Dict]: List of all ownership documents
         """
         return get_all_documents(company_ownership_collection)
 
@@ -91,17 +111,35 @@ class CompanyOwnershipAPI:
         Update a company ownership record's information.
         
         Args:
-            ownership_id (str): The ID of the company ownership record to update
+            ownership_id (str): The ID of the ownership record to update
             update_data (Dict): The fields to update and their new values
             
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        # Validate interest_type if it's being updated
-        if "interest_type" in update_data:
-            interest_type = update_data["interest_type"]
-            if interest_type not in ["working", "royalty"]:
-                raise ValueError("Interest type must be either 'working' or 'royalty'")
+        # Validate percentage is between 0 and 100 if it's being updated
+        if "percentage" in update_data:
+            percentage = update_data["percentage"]
+            if not (0 <= percentage <= 100):
+                raise ValueError("Percentage must be between 0 and 100")
+                
+        # Validate date_to is None if is_current_owner is True
+        if "is_current_owner" in update_data:
+            is_current_owner = update_data["is_current_owner"]
+            if is_current_owner:
+                if "date_to" in update_data and update_data["date_to"] is not None:
+                    raise ValueError("date_to must be None when is_current_owner is True")
+            else:
+                # date_to is mandatory when is_current_owner is False
+                if "date_to" in update_data and update_data["date_to"] is None:
+                    raise ValueError("date_to is mandatory when is_current_owner is False")
+                
+        # Validate date_to is after date_from if both are being updated
+        if "date_to" in update_data and update_data["date_to"] is not None and "date_from" in update_data:
+            date_from = update_data["date_from"]
+            date_to = update_data["date_to"]
+            if date_to < date_from:
+                raise ValueError("date_to must be after date_from")
                 
         return update_document({"_id": ObjectId(ownership_id)}, update_data)
 
@@ -111,7 +149,7 @@ class CompanyOwnershipAPI:
         Delete a company ownership record from the database.
         
         Args:
-            ownership_id (str): The ID of the company ownership record to delete
+            ownership_id (str): The ID of the ownership record to delete
             
         Returns:
             int: Number of documents deleted (1 if successful, 0 if not found)
@@ -124,72 +162,127 @@ class CompanyOwnershipAPI:
         Search for company ownership records based on specific criteria.
         
         Args:
-            query (Dict): Search criteria (e.g., {"percentage_ownership": {"$gt": 50}})
+            query (Dict): Search criteria (e.g., {"interest_type": "royalty"})
             
         Returns:
-            List[Dict]: List of matching company ownership documents
+            List[Dict]: List of matching ownership documents
         """
         return list(company_ownership_collection.find(query))
         
     @staticmethod
     def get_ownerships_by_property(property_id: str) -> List[Dict]:
         """
-        Get all company ownership records for a specific property.
+        Get all ownership records for a specific property.
         
         Args:
             property_id (str): The ID of the property
             
         Returns:
-            List[Dict]: List of company ownership records for the specified property
+            List[Dict]: List of ownership records for the specified property
         """
         return list(company_ownership_collection.find({"property_id": property_id}))
         
     @staticmethod
     def get_ownerships_by_company(company_id: str) -> List[Dict]:
         """
-        Get all company ownership records for a specific company.
+        Get all ownership records for a specific company.
         
         Args:
             company_id (str): The ID of the company
             
         Returns:
-            List[Dict]: List of company ownership records for the specified company
+            List[Dict]: List of ownership records for the specified company
         """
         return list(company_ownership_collection.find({"company_id": company_id}))
         
     @staticmethod
     def get_ownerships_by_interest_type(interest_type: str) -> List[Dict]:
         """
-        Get all company ownership records for a specific interest type.
+        Get all ownership records of a specific interest type.
         
         Args:
-            interest_type (str): The interest type to search for (working/royalty)
+            interest_type (str): The interest type to search for
             
         Returns:
-            List[Dict]: List of company ownership records for the specified interest type
+            List[Dict]: List of ownership records with the specified interest type
         """
-        if interest_type not in ["working", "royalty"]:
-            raise ValueError("Interest type must be either 'working' or 'royalty'")
-            
         return list(company_ownership_collection.find({"interest_type": interest_type}))
         
     @staticmethod
     def get_ownerships_by_percentage_range(min_percentage: float, max_percentage: float) -> List[Dict]:
         """
-        Get all company ownership records within a percentage range.
+        Get all ownership records within a percentage range.
         
         Args:
-            min_percentage (float): Minimum percentage ownership
-            max_percentage (float): Maximum percentage ownership
+            min_percentage (float): Minimum percentage
+            max_percentage (float): Maximum percentage
             
         Returns:
-            List[Dict]: List of company ownership records within the specified percentage range
+            List[Dict]: List of ownership records within the specified percentage range
         """
         return list(company_ownership_collection.find({
-            "percentage_ownership": {
+            "percentage": {
                 "$gte": min_percentage,
                 "$lte": max_percentage
             }
+        }))
+        
+    @staticmethod
+    def get_ownerships_by_well_type(well_type: str) -> List[Dict]:
+        """
+        Get all ownership records for a specific well type.
+        
+        Args:
+            well_type (str): The well type to search for
+            
+        Returns:
+            List[Dict]: List of ownership records with the specified well type
+        """
+        return list(company_ownership_collection.find({"well_type": well_type}))
+        
+    @staticmethod
+    def get_current_ownerships() -> List[Dict]:
+        """
+        Get all current ownership records (where is_current_owner is True).
+        
+        Returns:
+            List[Dict]: List of current ownership records
+        """
+        return list(company_ownership_collection.find({"is_current_owner": True}))
+        
+    @staticmethod
+    def get_historical_ownerships() -> List[Dict]:
+        """
+        Get all historical ownership records (where is_current_owner is False).
+        
+        Returns:
+            List[Dict]: List of historical ownership records
+        """
+        return list(company_ownership_collection.find({"is_current_owner": False}))
+        
+    @staticmethod
+    def get_ownerships_by_date_range(start_date: datetime, end_date: datetime) -> List[Dict]:
+        """
+        Get all ownership records active within a date range.
+        
+        Args:
+            start_date (datetime): Start of the date range
+            end_date (datetime): End of the date range
+            
+        Returns:
+            List[Dict]: List of ownership records active within the specified date range
+        """
+        return list(company_ownership_collection.find({
+            "$or": [
+                # Current ownerships
+                {"is_current_owner": True, "date_from": {"$lte": end_date}},
+                # Historical ownerships that overlap with the date range
+                {
+                    "is_current_owner": False,
+                    "date_from": {"$lte": end_date},
+                    "date_to": {"$gte": start_date}
+                }
+            ]
         }))
         
     @staticmethod
@@ -204,7 +297,7 @@ class CompanyOwnershipAPI:
             float: Total ownership percentage (should be 100% if all ownership is accounted for)
         """
         ownerships = list(company_ownership_collection.find({"property_id": property_id}))
-        total_percentage = sum(ownership.get("percentage_ownership", 0) for ownership in ownerships)
+        total_percentage = sum(ownership.get("percentage", 0) for ownership in ownerships)
         return total_percentage
 
     @staticmethod
