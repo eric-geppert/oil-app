@@ -81,7 +81,7 @@ class TransactionsAPI:
         Returns:
             Optional[Dict]: The transaction document if found, None otherwise
         """
-        return get_document({"_id": ObjectId(transaction_id)})
+        return get_document(transactions_collection, {"_id": ObjectId(transaction_id)})
 
     @staticmethod
     def get_all_transactions() -> List[Dict]:
@@ -105,7 +105,7 @@ class TransactionsAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        return update_document({"_id": ObjectId(transaction_id)}, update_data)
+        return update_document(transactions_collection, {"_id": ObjectId(transaction_id)}, update_data)
 
     @staticmethod
     def delete_transaction(transaction_id: str) -> int:
@@ -118,7 +118,7 @@ class TransactionsAPI:
         Returns:
             int: Number of documents deleted (1 if successful, 0 if not found)
         """
-        return delete_document({"_id": ObjectId(transaction_id)})
+        return delete_document(transactions_collection, {"_id": ObjectId(transaction_id)})
 
     @staticmethod
     def search_transactions(query: Dict) -> List[Dict]:
