@@ -18,6 +18,17 @@ CORS(app, resources={
     }
 })
 
+# Custom JSON encoder to handle MongoDB ObjectId
+class JSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+app.json_encoder = JSONEncoder
+
 # Helper function to convert ObjectId to string
 def json_serial(obj):
     if isinstance(obj, ObjectId):

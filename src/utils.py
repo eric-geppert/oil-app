@@ -6,18 +6,18 @@ def create_document(collection,data):
 
 # Read (Retrieve)
 def get_document(query):
-    return collection.find_one(query)
+    doc = collection.find_one(query)
+    if doc:
+        doc['_id'] = str(doc['_id'])
+    return doc
 
 def get_all_documents(collection):
     print("alll stuffs")
-    variable1 = collection.find()
-    for document in variable1:
-        print(document) 
-    # for obj in vars(variable1).items():
-    #     print("obj:", obj)
-    # for key, value in vars(variable1).items():
-    #     print(f"{key}: {value}")
-    return list(collection.find())
+    documents = list(collection.find())
+    # Convert ObjectId to string for each document
+    for doc in documents:
+        doc['_id'] = str(doc['_id'])
+    return documents
 
 # Update
 def update_document(query, data):
