@@ -10,7 +10,7 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from utils import get_all_documents
-from datetime import datetime
+from datetime import datetime, timedelta
 from api_clients.companies_api import CompaniesAPI
 from api_clients.properties_api import PropertiesAPI
 from api_clients.transactions_api import TransactionsAPI
@@ -55,10 +55,10 @@ collection = db["properties"] # Replace with your collection name
 
 # example of creating a property
 # property_data = {
-#     "name": "Example Property",
+#     "name": "Property 4",
 #     "description": "An example property",
 #     "address": {
-#         "street": "123 Main St",
+#         "street": "4 Main St",
 #         "city": "Anytown",
 #         "state": "CA",
 #         "zip": "12345"
@@ -91,11 +91,15 @@ collection = db["properties"] # Replace with your collection name
 
 # Example of creating a company ownership
 company_ownership_data = {
-    "property_id": "67f15c14e28ed6d05e160734",  # Replace with actual property ID
-    "company_id": "67f14a5fe7a9f8ab13b26488",  # Replace with actual company ID
-    "percentage_ownership": 50.0,
-    "interest_type": "working",
-    "well_type": "oil"
+    "company_id": "67f155eb4ba1f1b5f6ba6008",  # Replace with actual company ID
+    "property_id": "67f43387028deb3f8cd2ed1c",  # Replace with actual property ID
+    "interest_type": "working",  # e.g., royalty, working
+    "percentage": 100.0,  # Must be between 0-100
+    "is_current_owner": False,  # Whether company currently owns this interest
+    "date_from": datetime.now() - timedelta(days=30),  # Start date of ownership (1 month ago)
+    "date_to": datetime.now(),  # End date (None since is_current_owner is True)
+    "well_type": "oil",  # Optional well type
+    "created_at": datetime.now(),  # Creation timestamp
 }
 
 try:
