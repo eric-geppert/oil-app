@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Form, Modal, Alert } from "react-bootstrap";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:5001/api";
+
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -29,28 +31,29 @@ function Transactions() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get("/api/transactions");
+      const response = await axios.get(`${API_BASE_URL}/transactions`);
       setTransactions(response.data);
-    } catch (err) {
+    } catch (error) {
       setError("Failed to fetch transactions");
+      console.error("Error fetching transactions:", error);
     }
   };
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get("/api/properties");
+      const response = await axios.get(`${API_BASE_URL}/properties`);
       setProperties(response.data);
-    } catch (err) {
-      setError("Failed to fetch properties");
+    } catch (error) {
+      console.error("Error fetching properties:", error);
     }
   };
 
   const fetchCompanies = async () => {
     try {
-      const response = await axios.get("/api/companies");
+      const response = await axios.get(`${API_BASE_URL}/companies`);
       setCompanies(response.data);
-    } catch (err) {
-      setError("Failed to fetch companies");
+    } catch (error) {
+      console.error("Error fetching companies:", error);
     }
   };
 
@@ -59,19 +62,20 @@ function Transactions() {
     try {
       if (selectedTransaction) {
         await axios.put(
-          `/api/transactions/${selectedTransaction._id}`,
+          `${API_BASE_URL}/transactions/${selectedTransaction._id}`,
           formData
         );
         setSuccess("Transaction updated successfully");
       } else {
-        await axios.post("/api/transactions", formData);
+        await axios.post(`${API_BASE_URL}/transactions`, formData);
         setSuccess("Transaction created successfully");
       }
       setShowModal(false);
       fetchTransactions();
       resetForm();
-    } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to save transaction");
+      console.error("Error saving transaction:", error);
     }
   };
 
@@ -82,27 +86,29 @@ function Transactions() {
       company_id: transaction.company_id,
       transaction_date: transaction.transaction_date.split("T")[0],
       gross_amount: transaction.gross_amount,
-      net_amount: transaction.net_amount || "",
-      taxes_paid_amount: transaction.taxes_paid_amount || "",
+      net_amount: transaction.net_amount,
+      taxes_paid_amount: transaction.taxes_paid_amount,
       description: transaction.description,
       status: transaction.status,
     });
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (transactionId) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
-        await axios.delete(`/api/transactions/${id}`);
+        await axios.delete(`${API_BASE_URL}/transactions/${transactionId}`);
         setSuccess("Transaction deleted successfully");
         fetchTransactions();
-      } catch (err) {
-        setError("Failed to delete transaction");
+      } catch (error) {
+        setError(error.response?.data?.error || "Failed to delete transaction");
+        console.error("Error deleting transaction:", error);
       }
     }
   };
 
   const resetForm = () => {
+    setSelectedTransaction(null);
     setFormData({
       property_id: "",
       company_id: "",
@@ -113,7 +119,6 @@ function Transactions() {
       description: "",
       status: "active",
     });
-    setSelectedTransaction(null);
   };
 
   const getPropertyName = (propertyId) => {
@@ -127,18 +132,18 @@ function Transactions() {
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <h2>Transactions</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
 
       <Button
         variant="primary"
+        className="mb-3"
         onClick={() => {
           resetForm();
           setShowModal(true);
         }}
-        className="mb-3"
       >
         Add New Transaction
       </Button>
@@ -166,8 +171,8 @@ function Transactions() {
                 {new Date(transaction.transaction_date).toLocaleDateString()}
               </td>
               <td>${transaction.gross_amount.toFixed(2)}</td>
-              <td>${transaction.net_amount?.toFixed(2) || "-"}</td>
-              <td>${transaction.taxes_paid_amount?.toFixed(2) || "-"}</td>
+              <td>${transaction.net_amount.toFixed(2)}</td>
+              <td>${transaction.taxes_paid_amount.toFixed(2)}</td>
               <td>{transaction.description}</td>
               <td>{transaction.status}</td>
               <td>
@@ -270,6 +275,7 @@ function Transactions() {
                 onChange={(e) =>
                   setFormData({ ...formData, net_amount: e.target.value })
                 }
+                required
               />
             </Form.Group>
 
@@ -285,6 +291,7 @@ function Transactions() {
                     taxes_paid_amount: e.target.value,
                   })
                 }
+                required
               />
             </Form.Group>
 

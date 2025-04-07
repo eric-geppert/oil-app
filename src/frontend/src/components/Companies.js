@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Form, Modal, Alert } from "react-bootstrap";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:5001/api";
+
 function Companies() {
   const [companies, setCompanies] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -21,10 +23,11 @@ function Companies() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await axios.get("/api/companies");
+      const response = await axios.get(`${API_BASE_URL}/companies`);
       setCompanies(response.data);
-    } catch (err) {
+    } catch (error) {
       setError("Failed to fetch companies");
+      console.error("Error fetching companies:", error);
     }
   };
 
@@ -32,17 +35,21 @@ function Companies() {
     e.preventDefault();
     try {
       if (selectedCompany) {
-        await axios.put(`/api/companies/${selectedCompany._id}`, formData);
+        await axios.put(
+          `${API_BASE_URL}/companies/${selectedCompany._id}`,
+          formData
+        );
         setSuccess("Company updated successfully");
       } else {
-        await axios.post("/api/companies", formData);
+        await axios.post(`${API_BASE_URL}/companies`, formData);
         setSuccess("Company created successfully");
       }
       setShowModal(false);
       fetchCompanies();
       resetForm();
-    } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to save company");
+      console.error("Error saving company:", error);
     }
   };
 
@@ -57,41 +64,42 @@ function Companies() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (companyId) => {
     if (window.confirm("Are you sure you want to delete this company?")) {
       try {
-        await axios.delete(`/api/companies/${id}`);
+        await axios.delete(`${API_BASE_URL}/companies/${companyId}`);
         setSuccess("Company deleted successfully");
         fetchCompanies();
-      } catch (err) {
-        setError("Failed to delete company");
+      } catch (error) {
+        setError(error.response?.data?.error || "Failed to delete company");
+        console.error("Error deleting company:", error);
       }
     }
   };
 
   const resetForm = () => {
+    setSelectedCompany(null);
     setFormData({
       name: "",
       type: "",
       description: "",
       status: "active",
     });
-    setSelectedCompany(null);
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <h2>Companies</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
 
       <Button
         variant="primary"
+        className="mb-3"
         onClick={() => {
           resetForm();
           setShowModal(true);
         }}
-        className="mb-3"
       >
         Add New Company
       </Button>
@@ -157,18 +165,14 @@ function Companies() {
 
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
-              <Form.Select
+              <Form.Control
+                type="text"
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({ ...formData, type: e.target.value })
                 }
                 required
-              >
-                <option value="">Select Type</option>
-                <option value="operator">Operator</option>
-                <option value="investor">Investor</option>
-                <option value="service">Service Provider</option>
-              </Form.Select>
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">

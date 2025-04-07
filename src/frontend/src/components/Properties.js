@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Form, Modal, Alert } from "react-bootstrap";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:5001/api";
+
 function Properties() {
   const [properties, setProperties] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -21,10 +23,11 @@ function Properties() {
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get("/api/properties");
+      const response = await axios.get(`${API_BASE_URL}/properties`);
       setProperties(response.data);
-    } catch (err) {
+    } catch (error) {
       setError("Failed to fetch properties");
+      console.error("Error fetching properties:", error);
     }
   };
 
@@ -32,17 +35,21 @@ function Properties() {
     e.preventDefault();
     try {
       if (selectedProperty) {
-        await axios.put(`/api/properties/${selectedProperty._id}`, formData);
+        await axios.put(
+          `${API_BASE_URL}/properties/${selectedProperty._id}`,
+          formData
+        );
         setSuccess("Property updated successfully");
       } else {
-        await axios.post("/api/properties", formData);
+        await axios.post(`${API_BASE_URL}/properties`, formData);
         setSuccess("Property created successfully");
       }
       setShowModal(false);
       fetchProperties();
       resetForm();
-    } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to save property");
+      console.error("Error saving property:", error);
     }
   };
 
@@ -57,30 +64,31 @@ function Properties() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (propertyId) => {
     if (window.confirm("Are you sure you want to delete this property?")) {
       try {
-        await axios.delete(`/api/properties/${id}`);
+        await axios.delete(`${API_BASE_URL}/properties/${propertyId}`);
         setSuccess("Property deleted successfully");
         fetchProperties();
-      } catch (err) {
-        setError("Failed to delete property");
+      } catch (error) {
+        setError(error.response?.data?.error || "Failed to delete property");
+        console.error("Error deleting property:", error);
       }
     }
   };
 
   const resetForm = () => {
+    setSelectedProperty(null);
     setFormData({
       name: "",
       location: "",
       description: "",
       status: "active",
     });
-    setSelectedProperty(null);
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <h2>Properties</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}

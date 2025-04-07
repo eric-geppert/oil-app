@@ -38,6 +38,7 @@ done:
 - removed amount, added gross,net,taxed amounts
 - figured out how to keep history of owners -> just add dates to transactions table
 - removed owners from property table (not needed there or accurate), put in new property, and new company_ownership data in app.py
+- XX create admin for updating these???? ask m how that would work?-> no
 
 todo:
 
@@ -48,7 +49,7 @@ todo:
 3. Company
    then allow them to add to layer in multiple layers to the query
 
-- create admin for updating these???? ask m how that would work?
+- abstract api endpoint base urls to a config
 
 - ask how division order can "change ownership" when the krmrs are the owners?
 - make owners be a company_id
