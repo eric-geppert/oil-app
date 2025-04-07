@@ -26,15 +26,38 @@ Done:
 - added apis for all tables
 - added validation on the create_document for each api
 - created validation record from api
+- check id validations on all creates
 
 todays todo:
 
-- check id validations on creates
-- pull those then use the first one to push a tranaction record
+---
+
+4/7/25:
+done:
+
+- removed amount, added gross,net,taxed amounts
+- figured out how to keep history of owners -> just add dates to transactions table
+- removed owners from property table (not needed there or accurate), put in new property, and new company_ownership data in app.py
+
+todo:
+
+- create basic admin UI where they can query by the big 3
+
+1. Date
+2. Property
+3. Company
+   then allow them to add to layer in multiple layers to the query
+
+- create admin for updating these???? ask m how that would work?
+
+- ask how division order can "change ownership" when the krmrs are the owners?
+- make owners be a company_id
 - create admin functionality to be able to view income by company
 - create admin functionality to be able to view income by property
 
----
+- create basic FE
+- addtional features for CompanyOwnershipAPI-> when creating on the UI make sure the percentage adds up to 100?
+  where is the best place to validate this? likely the FE
 
 next time:
 
@@ -49,6 +72,8 @@ Todo:
 
 Later on:
 
+- break up the company_ownership table into several tables to make it be faster when querying?
 - sub divide property use case?
+- add user authentication!
 - Make add another field for created by user or company and only let that company/user edit!
 - Front end
