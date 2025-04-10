@@ -1,4 +1,4 @@
-Done:
+Done on each day:
 3/10/25
 
 - added my ip to whitelist of mongoDB so I could connect locally
@@ -33,13 +33,19 @@ todays todo:
 ---
 
 4/7/25:
-done:
 
 - removed amount, added gross,net,taxed amounts
 - figured out how to keep history of owners -> just add dates to transactions table
 - removed owners from property table (not needed there or accurate), put in new property, and new company_ownership data in app.py
 - XX create admin for updating these???? ask m how that would work?-> no
 - created basic front end for CRUD and displaying table
+- attempted to fix dates and it didn't work
+
+4/10/25:
+
+- added new accounts api for new accounts table in the db
+- restyling of front end to put the tabs on the left (cursor did it), added front end code for the accounts
+- made main nav drawer on the left collapsable
 
 todo:
 

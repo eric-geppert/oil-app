@@ -15,6 +15,7 @@ from api_clients.companies_api import CompaniesAPI
 from api_clients.properties_api import PropertiesAPI
 from api_clients.transactions_api import TransactionsAPI
 from api_clients.company_ownership_api import CompanyOwnershipAPI
+from api_clients.accounts_api import AccountsAPI
 # print("at top")
 # load_dotenv()
 # todo: abstract later
@@ -90,22 +91,33 @@ collection = db["properties"] # Replace with your collection name
 #     print(f"Error creating transaction: {e}")
 
 # Example of creating a company ownership
-company_ownership_data = {
-    "company_id": "67f155eb4ba1f1b5f6ba6008",  # Replace with actual company ID
-    "property_id": "67f43387028deb3f8cd2ed1c",  # Replace with actual property ID
-    "interest_type": "working",  # e.g., royalty, working
-    "percentage": 100.0,  # Must be between 0-100
-    "is_current_owner": False,  # Whether company currently owns this interest
-    "date_from": datetime.now() - timedelta(days=30),  # Start date of ownership (1 month ago)
-    "date_to": datetime.now(),  # End date (None since is_current_owner is True)
-    "well_type": "oil",  # Optional well type
-    "created_at": datetime.now(),  # Creation timestamp
+# company_ownership_data = {
+#     "company_id": "67f155eb4ba1f1b5f6ba6008",  # Replace with actual company ID
+#     "property_id": "67f43387028deb3f8cd2ed1c",  # Replace with actual property ID
+#     "interest_type": "working",  # e.g., royalty, working
+#     "percentage": 100.0,  # Must be between 0-100
+#     "is_current_owner": False,  # Whether company currently owns this interest
+#     "date_from": datetime.now() - timedelta(days=30),  # Start date of ownership (1 month ago)
+#     "date_to": datetime.now(),  # End date (None since is_current_owner is True)
+#     "well_type": "oil",  # Optional well type
+#     "created_at": datetime.now(),  # Creation timestamp
+# }
+
+# try:
+#     company_ownership_id = CompanyOwnershipAPI.create_company_ownership(company_ownership_data)
+#     print(f"Created company ownership with ID: {company_ownership_id}")
+# except ValueError as e:
+#     print(f"Error creating company ownership: {e}")
+
+
+# Example of creating an account
+account_data = {
+    "name": "Example Account",
+    "account_type": "checking",  # e.g., checking, savings, investment
+    "account_number": "2001",
+    "status": "active",
+    "description": "for debt stuffs"
+    "created_at": datetime.now()
 }
-
-try:
-    company_ownership_id = CompanyOwnershipAPI.create_company_ownership(company_ownership_data)
-    print(f"Created company ownership with ID: {company_ownership_id}")
-except ValueError as e:
-    print(f"Error creating company ownership: {e}")
-
-# Example of creating a user
+account_id = AccountsAPI.create_account(account_data)
+print(f"Created account with ID: {account_id}")       

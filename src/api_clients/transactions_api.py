@@ -20,50 +20,52 @@ class TransactionsAPI:
         
         Args:
             transaction_data (Dict): Transaction information including:
-                - gross_amount (float): Gross transaction amount (MANDATORY)
-                - net_amount (float): Net transaction amount after deductions
-                - taxes_paid_amount (float): Amount paid in taxes
-                - date (datetime): Transaction date (MANDATORY)
-                - property_id (str): ID of the property involved (MANDATORY)
-                - company_from_id (str): ID of the company paying (MANDATORY)
-                - company_to_id (str): ID of the company receiving payment (MANDATORY)
+                - property_id (str): ID of the property (MANDATORY)
+                - company_id (str): ID of the company (MANDATORY)
+                - transaction_date (datetime): Date of the transaction (MANDATORY)
+                - gross_amount (float): Gross amount of the transaction (MANDATORY)
+                - net_amount (float): Net amount of the transaction (MANDATORY)
+                - taxes_paid_amount (float): Amount of taxes paid (MANDATORY)
+                - merchandise_transacted (str, optional): Description of merchandise
+                - amount_of_merch_transacted (float, optional): Amount of merchandise
+                - merchandise_type (str, optional): Type of merchandise
+                - barrels_of_oil (float, optional): Number of barrels of oil
+                - service1 (str, optional): Service description
                 - created_at (datetime): Creation timestamp
-                - merchandise_transacted (str): ID of the merchandise transacted
-                - amount_of_merch_transacted (float): Amount of merchandise transacted
-                - merchandise_type (str): Type of merchandise involved
-                - barrels_of_oil (float, optional): Number of barrels of oil involved
-                - service (str, optional): Service provided
                 
         Returns:
             str: The ID of the newly created transaction
             
         Raises:
-            ValueError: If required fields are missing or if property_id/company IDs don't exist
+            ValueError: If required fields are missing or invalid
         """
         # Validate required fields
-        required_fields = ["gross_amount", "date", "property_id", "company_from_id", "company_to_id"]
+        required_fields = ["property_id", "company_id", "transaction_date", "gross_amount", "net_amount", "taxes_paid_amount"]
         for field in required_fields:
             if field not in transaction_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
-        
-        # Validate that property_id exists in the properties collection
-        property_id = transaction_data["property_id"]
-        property_exists = properties_collection.find_one({"_id": ObjectId(property_id)})
-        if not property_exists:
-            raise ValueError(f"Property with ID '{property_id}' does not exist in the database")
-        
-        # Validate that company_from_id exists in the companies collection
-        company_from_id = transaction_data["company_from_id"]
-        company_from_exists = companies_collection.find_one({"_id": ObjectId(company_from_id)})
-        if not company_from_exists:
-            raise ValueError(f"Company with ID '{company_from_id}' (paying company) does not exist in the database")
-        
-        # Validate that company_to_id exists in the companies collection
-        company_to_id = transaction_data["company_to_id"]
-        company_to_exists = companies_collection.find_one({"_id": ObjectId(company_to_id)})
-        if not company_to_exists:
-            raise ValueError(f"Company with ID '{company_to_id}' (receiving company) does not exist in the database")
-        
+            
+        # Validate amounts are numbers
+        amount_fields = ["gross_amount", "net_amount", "taxes_paid_amount"]
+        for field in amount_fields:
+            try:
+                amount = float(transaction_data[field])
+                if amount < 0:
+                    raise ValueError(f"{field} cannot be negative")
+            except (ValueError, TypeError):
+                raise ValueError(f"{field} must be a valid number")
+                
+        # Validate optional amount fields if provided
+        optional_amount_fields = ["amount_of_merch_transacted", "barrels_of_oil"]
+        for field in optional_amount_fields:
+            if field in transaction_data and transaction_data[field] is not None:
+                try:
+                    amount = float(transaction_data[field])
+                    if amount < 0:
+                        raise ValueError(f"{field} cannot be negative")
+                except (ValueError, TypeError):
+                    raise ValueError(f"{field} must be a valid number")
+            
         # Add creation timestamp if not provided
         if "created_at" not in transaction_data:
             transaction_data["created_at"] = datetime.now()
@@ -105,6 +107,28 @@ class TransactionsAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
+        # Validate amounts are numbers if they're being updated
+        amount_fields = ["gross_amount", "net_amount", "taxes_paid_amount"]
+        for field in amount_fields:
+            if field in update_data:
+                try:
+                    amount = float(update_data[field])
+                    if amount < 0:
+                        raise ValueError(f"{field} cannot be negative")
+                except (ValueError, TypeError):
+                    raise ValueError(f"{field} must be a valid number")
+                    
+        # Validate optional amount fields if provided
+        optional_amount_fields = ["amount_of_merch_transacted", "barrels_of_oil"]
+        for field in optional_amount_fields:
+            if field in update_data and update_data[field] is not None:
+                try:
+                    amount = float(update_data[field])
+                    if amount < 0:
+                        raise ValueError(f"{field} cannot be negative")
+                except (ValueError, TypeError):
+                    raise ValueError(f"{field} must be a valid number")
+                
         return update_document(transactions_collection, {"_id": ObjectId(transaction_id)}, update_data)
 
     @staticmethod
@@ -126,7 +150,7 @@ class TransactionsAPI:
         Search for transactions based on specific criteria.
         
         Args:
-            query (Dict): Search criteria (e.g., {"gross_amount": {"$gt": 1000}})
+            query (Dict): Search criteria (e.g., {"property_id": "123"})
             
         Returns:
             List[Dict]: List of matching transaction documents
@@ -139,7 +163,7 @@ class TransactionsAPI:
         Get all transactions for a specific property.
         
         Args:
-            property_id (str): The ID of the property
+            property_id (str): The property ID to search for
             
         Returns:
             List[Dict]: List of transactions for the specified property
@@ -147,32 +171,18 @@ class TransactionsAPI:
         return list(transactions_collection.find({"property_id": property_id}))
         
     @staticmethod
-    def get_transactions_by_company(company_id: str, direction: str = "both") -> List[Dict]:
+    def get_transactions_by_company(company_id: str) -> List[Dict]:
         """
-        Get all transactions involving a specific company.
+        Get all transactions for a specific company.
         
         Args:
-            company_id (str): The ID of the company
-            direction (str): Which direction to search for transactions:
-                - "from": Transactions where the company is paying
-                - "to": Transactions where the company is receiving payment
-                - "both": Both directions (default)
-                
-        Returns:
-            List[Dict]: List of transactions involving the specified company
-        """
-        if direction == "from":
-            return list(transactions_collection.find({"company_from_id": company_id}))
-        elif direction == "to":
-            return list(transactions_collection.find({"company_to_id": company_id}))
-        else:  # both
-            return list(transactions_collection.find({
-                "$or": [
-                    {"company_from_id": company_id},
-                    {"company_to_id": company_id}
-                ]
-            }))
+            company_id (str): The company ID to search for
             
+        Returns:
+            List[Dict]: List of transactions for the specified company
+        """
+        return list(transactions_collection.find({"company_id": company_id}))
+        
     @staticmethod
     def get_transactions_by_date_range(start_date: datetime, end_date: datetime) -> List[Dict]:
         """
@@ -183,10 +193,10 @@ class TransactionsAPI:
             end_date (datetime): End of the date range
             
         Returns:
-            List[Dict]: List of transactions within the specified date range
+            List[Dict]: List of transactions within the date range
         """
         return list(transactions_collection.find({
-            "date": {
+            "transaction_date": {
                 "$gte": start_date,
                 "$lte": end_date
             }
