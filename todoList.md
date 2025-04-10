@@ -46,6 +46,7 @@ todays todo:
 - added new accounts api for new accounts table in the db
 - restyling of front end to put the tabs on the left (cursor did it), added front end code for the accounts
 - made main nav drawer on the left collapsable
+- removed company from and company_to in transactions just made it company, updated api endpoints, server, and fe code"
 
 todo:
 

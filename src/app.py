@@ -16,6 +16,12 @@ from api_clients.properties_api import PropertiesAPI
 from api_clients.transactions_api import TransactionsAPI
 from api_clients.company_ownership_api import CompanyOwnershipAPI
 from api_clients.accounts_api import AccountsAPI
+from flask import Flask
+from flask_cors import CORS
+from routes.companies_routes import companies_bp
+from routes.transactions_routes import transactions_bp
+from routes.company_ownership_routes import company_ownership_bp
+from routes.entries_routes import entries_bp
 # print("at top")
 # load_dotenv()
 # todo: abstract later
@@ -121,3 +127,12 @@ account_data = {
 }
 account_id = AccountsAPI.create_account(account_data)
 print(f"Created account with ID: {account_id}")       
+
+app = Flask(__name__)
+CORS(app)
+
+# Register blueprints
+app.register_blueprint(companies_bp)
+app.register_blueprint(transactions_bp)
+app.register_blueprint(company_ownership_bp)
+app.register_blueprint(entries_bp)       

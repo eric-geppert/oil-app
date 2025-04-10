@@ -23,14 +23,12 @@ class TransactionsAPI:
                 - property_id (str): ID of the property (MANDATORY)
                 - company_id (str): ID of the company (MANDATORY)
                 - transaction_date (datetime): Date of the transaction (MANDATORY)
-                - gross_amount (float): Gross amount of the transaction (MANDATORY)
-                - net_amount (float): Net amount of the transaction (MANDATORY)
-                - taxes_paid_amount (float): Amount of taxes paid (MANDATORY)
+                - amount (float): Amount of the transaction (MANDATORY)
                 - merchandise_transacted (str, optional): Description of merchandise
                 - amount_of_merch_transacted (float, optional): Amount of merchandise
                 - merchandise_type (str, optional): Type of merchandise
                 - barrels_of_oil (float, optional): Number of barrels of oil
-                - service1 (str, optional): Service description
+                - service (str, optional): Service description
                 - created_at (datetime): Creation timestamp
                 
         Returns:
@@ -40,20 +38,18 @@ class TransactionsAPI:
             ValueError: If required fields are missing or invalid
         """
         # Validate required fields
-        required_fields = ["property_id", "company_id", "transaction_date", "gross_amount", "net_amount", "taxes_paid_amount"]
+        required_fields = ["property_id", "company_id", "transaction_date", "amount"]
         for field in required_fields:
             if field not in transaction_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
             
-        # Validate amounts are numbers
-        amount_fields = ["gross_amount", "net_amount", "taxes_paid_amount"]
-        for field in amount_fields:
-            try:
-                amount = float(transaction_data[field])
-                if amount < 0:
-                    raise ValueError(f"{field} cannot be negative")
-            except (ValueError, TypeError):
-                raise ValueError(f"{field} must be a valid number")
+        # Validate amount is a number
+        try:
+            amount = float(transaction_data["amount"])
+            if amount < 0:
+                raise ValueError("amount cannot be negative")
+        except (ValueError, TypeError):
+            raise ValueError("amount must be a valid number")
                 
         # Validate optional amount fields if provided
         optional_amount_fields = ["amount_of_merch_transacted", "barrels_of_oil"]
@@ -107,16 +103,14 @@ class TransactionsAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        # Validate amounts are numbers if they're being updated
-        amount_fields = ["gross_amount", "net_amount", "taxes_paid_amount"]
-        for field in amount_fields:
-            if field in update_data:
-                try:
-                    amount = float(update_data[field])
-                    if amount < 0:
-                        raise ValueError(f"{field} cannot be negative")
-                except (ValueError, TypeError):
-                    raise ValueError(f"{field} must be a valid number")
+        # Validate amount is a number if it's being updated
+        if "amount" in update_data:
+            try:
+                amount = float(update_data["amount"])
+                if amount < 0:
+                    raise ValueError("amount cannot be negative")
+            except (ValueError, TypeError):
+                raise ValueError("amount must be a valid number")
                     
         # Validate optional amount fields if provided
         optional_amount_fields = ["amount_of_merch_transacted", "barrels_of_oil"]
@@ -218,43 +212,35 @@ class TransactionsAPI:
         }))
         
     @staticmethod
-    def get_transactions_by_amount_range(min_amount: float, max_amount: float, amount_type: str = "gross_amount") -> List[Dict]:
+    def get_transactions_by_amount_range(min_amount: float, max_amount: float) -> List[Dict]:
         """
         Get all transactions within an amount range.
         
         Args:
             min_amount (float): Minimum amount
             max_amount (float): Maximum amount
-            amount_type (str): Type of amount to filter by (gross_amount, net_amount, taxes_paid_amount)
             
         Returns:
             List[Dict]: List of transactions within the specified amount range
         """
-        if amount_type not in ["gross_amount", "net_amount", "taxes_paid_amount"]:
-            raise ValueError("Amount type must be one of: gross_amount, net_amount, taxes_paid_amount")
-            
         return list(transactions_collection.find({
-            amount_type: {
+            "amount": {
                 "$gte": min_amount,
                 "$lte": max_amount
             }
         }))
         
     @staticmethod
-    def get_total_transactions_by_property(property_id: str, amount_type: str = "gross_amount") -> float:
+    def get_total_transactions_by_property(property_id: str) -> float:
         """
         Calculate the total transaction amount for a property.
         
         Args:
             property_id (str): The ID of the property
-            amount_type (str): Type of amount to sum (gross_amount, net_amount, taxes_paid_amount)
             
         Returns:
             float: Total transaction amount for the specified property
         """
-        if amount_type not in ["gross_amount", "net_amount", "taxes_paid_amount"]:
-            raise ValueError("Amount type must be one of: gross_amount, net_amount, taxes_paid_amount")
-            
         transactions = list(transactions_collection.find({"property_id": property_id}))
-        total_amount = sum(transaction.get(amount_type, 0) for transaction in transactions)
+        total_amount = sum(transaction.get("amount", 0) for transaction in transactions)
         return total_amount 
