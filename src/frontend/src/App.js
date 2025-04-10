@@ -12,6 +12,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  useTheme,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -20,6 +21,8 @@ import {
   AccountBalance as AccountBalanceIcon,
   Receipt as ReceiptIcon,
   People as PeopleIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import Properties from "./components/Properties";
 import Companies from "./components/Companies";
@@ -28,13 +31,20 @@ import CompanyOwnership from "./components/CompanyOwnership";
 import Accounts from "./components/Accounts";
 
 const drawerWidth = 240;
+const collapsedDrawerWidth = 65;
 
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("properties");
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const theme = useTheme();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleDrawerCollapse = () => {
+    setDrawerOpen(!drawerOpen);
   };
 
   const menuItems = [
@@ -51,10 +61,24 @@ function App() {
 
   const drawer = (
     <div>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          Oil & Gas App
-        </Typography>
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {drawerOpen && (
+          <Typography variant="h6" noWrap component="div">
+            Oil & Gas App
+          </Typography>
+        )}
+        <IconButton
+          onClick={handleDrawerCollapse}
+          sx={{ ml: drawerOpen ? "auto" : 0 }}
+        >
+          {drawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+        </IconButton>
       </Toolbar>
       <Divider />
       <List>
@@ -64,9 +88,22 @@ function App() {
             key={item.text}
             onClick={() => setSelectedTab(item.value)}
             selected={selectedTab === item.value}
+            sx={{
+              minHeight: 48,
+              justifyContent: drawerOpen ? "initial" : "center",
+              px: 2.5,
+            }}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: drawerOpen ? 3 : "auto",
+                justifyContent: "center",
+              }}
+            >
+              {item.icon}
+            </ListItemIcon>
+            {drawerOpen && <ListItemText primary={item.text} />}
           </ListItem>
         ))}
       </List>
@@ -96,8 +133,16 @@ function App() {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: {
+            sm: `calc(100% - ${
+              drawerOpen ? drawerWidth : collapsedDrawerWidth
+            }px)`,
+          },
+          ml: { sm: `${drawerOpen ? drawerWidth : collapsedDrawerWidth}px` },
+          transition: theme.transitions.create(["margin", "width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
         }}
       >
         <Toolbar>
@@ -118,20 +163,31 @@ function App() {
       </AppBar>
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{
+          width: { sm: drawerOpen ? drawerWidth : collapsedDrawerWidth },
+          flexShrink: { sm: 0 },
+          transition: theme.transitions.create("width", {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        }}
       >
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
+              transition: theme.transitions.create("width", {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
             },
           }}
         >
@@ -143,7 +199,12 @@ function App() {
             display: { xs: "none", sm: "block" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: drawerWidth,
+              width: drawerOpen ? drawerWidth : collapsedDrawerWidth,
+              transition: theme.transitions.create("width", {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+              overflowX: "hidden",
             },
           }}
           open
@@ -156,7 +217,15 @@ function App() {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: {
+            sm: `calc(100% - ${
+              drawerOpen ? drawerWidth : collapsedDrawerWidth
+            }px)`,
+          },
+          transition: theme.transitions.create(["margin", "width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
         }}
       >
         <Toolbar />
