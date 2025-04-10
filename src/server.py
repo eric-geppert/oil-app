@@ -335,29 +335,5 @@ def get_inactive_accounts():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/accounts/total-balance', methods=['GET'])
-def get_total_balance():
-    try:
-        total_balance = AccountsAPI.get_total_balance()
-        return jsonify({"total_balance": total_balance})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/accounts/total-balance/type/<account_type>', methods=['GET'])
-def get_total_balance_by_type(account_type):
-    try:
-        total_balance = AccountsAPI.get_total_balance_by_type(account_type)
-        return jsonify({"total_balance": total_balance})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/accounts/total-balance/bank/<bank_name>', methods=['GET'])
-def get_total_balance_by_bank(bank_name):
-    try:
-        total_balance = AccountsAPI.get_total_balance_by_bank(bank_name)
-        return jsonify({"total_balance": total_balance})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

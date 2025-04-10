@@ -21,9 +21,7 @@ class AccountsAPI:
                 - name (str): Account name (MANDATORY)
                 - account_type (str): Type of account (e.g., checking, savings) (MANDATORY)
                 - account_number (str): Account number (MANDATORY)
-                - bank_name (str): Name of the bank (MANDATORY)
-                - routing_number (str): Bank routing number (MANDATORY)
-                - balance (float): Current account balance (MANDATORY)
+                - bank_name (str, optional): Name of the bank
                 - description (str, optional): Account description
                 - status (str): Account status (active/inactive) (MANDATORY)
                 - created_at (datetime): Creation timestamp
@@ -35,18 +33,10 @@ class AccountsAPI:
             ValueError: If required fields are missing
         """
         # Validate required fields
-        required_fields = ["name", "account_type", "account_number", "bank_name", "routing_number", "balance", "status"]
+        required_fields = ["name", "account_type", "account_number", "status"]
         for field in required_fields:
             if field not in account_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
-        
-        # Validate balance is a number
-        try:
-            balance = float(account_data["balance"])
-            if balance < 0:
-                raise ValueError("Balance cannot be negative")
-        except (ValueError, TypeError):
-            raise ValueError("Balance must be a valid number")
             
         # Validate status is either active or inactive
         if account_data["status"] not in ["active", "inactive"]:
@@ -93,15 +83,6 @@ class AccountsAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        # Validate balance is a number if it's being updated
-        if "balance" in update_data:
-            try:
-                balance = float(update_data["balance"])
-                if balance < 0:
-                    raise ValueError("Balance cannot be negative")
-            except (ValueError, TypeError):
-                raise ValueError("Balance must be a valid number")
-                
         # Validate status is either active or inactive if it's being updated
         if "status" in update_data:
             if update_data["status"] not in ["active", "inactive"]:
