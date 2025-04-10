@@ -91,7 +91,9 @@ function CompanyOwnership() {
       percentage: ownership.percentage,
       well_type: ownership.well_type,
       current_owner_status: ownership.current_owner_status,
-      start_date: ownership.start_date.split("T")[0],
+      start_date: ownership.start_date
+        ? ownership.start_date.split("T")[0]
+        : "",
       end_date: ownership.end_date ? ownership.end_date.split("T")[0] : "",
       status: ownership.status,
     });
@@ -184,7 +186,11 @@ function CompanyOwnership() {
               <td>{ownership.percentage}%</td>
               <td>{ownership.well_type}</td>
               <td>{ownership.current_owner_status}</td>
-              <td>{new Date(ownership.start_date).toLocaleDateString()}</td>
+              <td>
+                {ownership.start_date
+                  ? new Date(ownership.start_date).toLocaleDateString()
+                  : "-"}
+              </td>
               <td>
                 {ownership.end_date
                   ? new Date(ownership.end_date).toLocaleDateString()

@@ -84,7 +84,9 @@ function Transactions() {
     setFormData({
       property_id: transaction.property_id,
       company_id: transaction.company_id,
-      transaction_date: transaction.transaction_date.split("T")[0],
+      transaction_date: transaction.transaction_date
+        ? transaction.transaction_date.split("T")[0]
+        : "",
       gross_amount: transaction.gross_amount,
       net_amount: transaction.net_amount,
       taxes_paid_amount: transaction.taxes_paid_amount,
@@ -168,7 +170,9 @@ function Transactions() {
               <td>{getPropertyName(transaction.property_id)}</td>
               <td>{getCompanyName(transaction.company_id)}</td>
               <td>
-                {new Date(transaction.transaction_date).toLocaleDateString()}
+                {transaction.transaction_date
+                  ? new Date(transaction.transaction_date).toLocaleDateString()
+                  : "-"}
               </td>
               <td>${Number(transaction.gross_amount || 0).toFixed(2)}</td>
               <td>${Number(transaction.net_amount || 0).toFixed(2)}</td>

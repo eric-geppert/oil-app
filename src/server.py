@@ -4,6 +4,7 @@ from api_clients.properties_api import PropertiesAPI
 from api_clients.companies_api import CompaniesAPI
 from api_clients.transactions_api import TransactionsAPI
 from api_clients.company_ownership_api import CompanyOwnershipAPI
+from api_clients.accounts_api import AccountsAPI
 from bson import ObjectId
 import json
 from datetime import datetime
@@ -246,6 +247,115 @@ def delete_company_ownership(ownership_id):
         if result:
             return jsonify({"message": "Company ownership record deleted successfully"})
         return jsonify({"error": "Company ownership record not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Accounts endpoints
+@app.route('/api/accounts', methods=['GET'])
+def get_accounts():
+    try:
+        accounts = AccountsAPI.get_all_accounts()
+        return jsonify(accounts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/<account_id>', methods=['GET'])
+def get_account(account_id):
+    try:
+        account_data = AccountsAPI.get_account(account_id)
+        if account_data:
+            return jsonify(account_data)
+        return jsonify({"error": "Account not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts', methods=['POST'])
+def create_account():
+    try:
+        account_data = request.json
+        account_id = AccountsAPI.create_account(account_data)
+        return jsonify({"id": account_id, "message": "Account created successfully"}), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/<account_id>', methods=['PUT'])
+def update_account(account_id):
+    try:
+        update_data = request.json
+        result = AccountsAPI.update_account(account_id, update_data)
+        if result:
+            return jsonify({"message": "Account updated successfully"})
+        return jsonify({"error": "Account not found"}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/<account_id>', methods=['DELETE'])
+def delete_account(account_id):
+    try:
+        result = AccountsAPI.delete_account(account_id)
+        if result:
+            return jsonify({"message": "Account deleted successfully"})
+        return jsonify({"error": "Account not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/type/<account_type>', methods=['GET'])
+def get_accounts_by_type(account_type):
+    try:
+        accounts = AccountsAPI.get_accounts_by_type(account_type)
+        return jsonify(accounts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/bank/<bank_name>', methods=['GET'])
+def get_accounts_by_bank(bank_name):
+    try:
+        accounts = AccountsAPI.get_accounts_by_bank(bank_name)
+        return jsonify(accounts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/active', methods=['GET'])
+def get_active_accounts():
+    try:
+        accounts = AccountsAPI.get_active_accounts()
+        return jsonify(accounts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/inactive', methods=['GET'])
+def get_inactive_accounts():
+    try:
+        accounts = AccountsAPI.get_inactive_accounts()
+        return jsonify(accounts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/total-balance', methods=['GET'])
+def get_total_balance():
+    try:
+        total_balance = AccountsAPI.get_total_balance()
+        return jsonify({"total_balance": total_balance})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/total-balance/type/<account_type>', methods=['GET'])
+def get_total_balance_by_type(account_type):
+    try:
+        total_balance = AccountsAPI.get_total_balance_by_type(account_type)
+        return jsonify({"total_balance": total_balance})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/accounts/total-balance/bank/<bank_name>', methods=['GET'])
+def get_total_balance_by_bank(bank_name):
+    try:
+        total_balance = AccountsAPI.get_total_balance_by_bank(bank_name)
+        return jsonify({"total_balance": total_balance})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

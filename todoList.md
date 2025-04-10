@@ -39,8 +39,15 @@ done:
 - figured out how to keep history of owners -> just add dates to transactions table
 - removed owners from property table (not needed there or accurate), put in new property, and new company_ownership data in app.py
 - XX create admin for updating these???? ask m how that would work?-> no
+- created basic front end for CRUD and displaying table
 
 todo:
+
+- fix dates on front end
+- deploy move be files under BE folder
+- deploy BE and FE to server so mom can see it
+- need to add pagination?
+- don't allow deleting of companies that have transactions or properties associated (just remove delte on companies and properties)
 
 - create basic admin UI where they can query by the big 3
 
@@ -78,3 +85,7 @@ Later on:
 - add user authentication!
 - Make add another field for created by user or company and only let that company/user edit!
 - Front end
+
+thoughts:
+
+- need to remove Deletes from the FE or make them only sudo admin deletable by me?
