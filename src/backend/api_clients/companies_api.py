@@ -38,7 +38,7 @@ class CompaniesAPI:
         Returns:
             Optional[Dict]: The company document if found, None otherwise
         """
-        return get_document({"_id": ObjectId(company_id)})
+        return get_document(companies_collection, {"_id": ObjectId(company_id)})
 
     @staticmethod
     def get_all_companies() -> List[Dict]:
@@ -62,7 +62,7 @@ class CompaniesAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        return update_document({"_id": ObjectId(company_id)}, update_data)
+        return update_document(companies_collection, {"_id": ObjectId(company_id)}, update_data)
 
     @staticmethod
     def delete_company(company_id: str) -> int:
@@ -75,7 +75,7 @@ class CompaniesAPI:
         Returns:
             int: Number of documents deleted (1 if successful, 0 if not found)
         """
-        return delete_document({"_id": ObjectId(company_id)})
+        return delete_document(companies_collection, {"_id": ObjectId(company_id)})
 
     @staticmethod
     def search_companies(query: Dict) -> List[Dict]:

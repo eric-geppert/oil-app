@@ -1,4 +1,4 @@
-Done:
+Done on each day:
 3/10/25
 
 - added my ip to whitelist of mongoDB so I could connect locally
@@ -26,15 +26,61 @@ Done:
 - added apis for all tables
 - added validation on the create_document for each api
 - created validation record from api
+- check id validations on all creates
 
 todays todo:
 
-- check id validations on creates
-- pull those then use the first one to push a tranaction record
+---
+
+4/7/25:
+
+- removed amount, added gross,net,taxed amounts
+- figured out how to keep history of owners -> just add dates to transactions table
+- removed owners from property table (not needed there or accurate), put in new property, and new company_ownership data in app.py
+- XX create admin for updating these???? ask m how that would work?-> no
+- created basic front end for CRUD and displaying table
+- attempted to fix dates and it didn't work
+
+4/10/25:
+
+- added new accounts api for new accounts table in the db
+- restyling of front end to put the tabs on the left (cursor did it), added front end code for the accounts
+- made main nav drawer on the left collapsable
+- removed company from and company_to in transactions just made it company, updated api endpoints, server, and fe code"
+- updated from using gross, net, taxed amount to single amount in backend, added entries table and FE code, put transactions inside of that
+
+todo:
+
+- make the entry just default be open, and not try to display already completed entries
+- add post entries, that does some verification
+- add unpost entries (don't allow on closed out years, have to add that in too- for now just put a comment on that page in the ui)
+- add aggregation by revenue and shiz
+
+lil later:
+
+- fix dates on front end
+- deploy move be files under BE folder
+- deploy BE and FE to server so mom can see it
+- need to add pagination?
+- don't allow deleting of companies that have transactions or properties associated (just remove delte on companies and properties)
+
+- create basic admin UI where they can query by the big 3
+
+1. Date
+2. Property
+3. Company
+   then allow them to add to layer in multiple layers to the query
+
+- abstract api endpoint base urls to a config
+
+- ask how division order can "change ownership" when the krmrs are the owners?
+- make owners be a company_id
 - create admin functionality to be able to view income by company
 - create admin functionality to be able to view income by property
 
----
+- create basic FE
+- addtional features for CompanyOwnershipAPI-> when creating on the UI make sure the percentage adds up to 100?
+  where is the best place to validate this? likely the FE
 
 next time:
 
@@ -49,6 +95,12 @@ Todo:
 
 Later on:
 
+- break up the company_ownership table into several tables to make it be faster when querying?
 - sub divide property use case?
+- add user authentication!
 - Make add another field for created by user or company and only let that company/user edit!
 - Front end
+
+thoughts:
+
+- need to remove Deletes from the FE or make them only sudo admin deletable by me?

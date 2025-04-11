@@ -24,9 +24,6 @@ class PropertiesAPI:
                     - city (str): City
                     - state (str): State
                     - zip_code (str): ZIP code
-                - owners (List[Dict]): List of owners with fields (MANDATORY):
-                    - name (str): Owner name
-                    - contact_info (Dict): Contact information
                 - created_at (datetime): Creation timestamp
                 
         Returns:
@@ -36,7 +33,7 @@ class PropertiesAPI:
             ValueError: If any mandatory field is missing or empty
         """
         # Validate all mandatory fields
-        mandatory_fields = ["name", "address", "owners"]
+        mandatory_fields = ["name", "address"]
         for field in mandatory_fields:
             if field not in property_data or not property_data[field]:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
@@ -58,7 +55,7 @@ class PropertiesAPI:
         Returns:
             Optional[Dict]: The property document if found, None otherwise
         """
-        return get_document({"_id": ObjectId(property_id)})
+        return get_document(properties_collection, {"_id": ObjectId(property_id)})
 
     @staticmethod
     def get_all_properties() -> List[Dict]:
@@ -82,7 +79,7 @@ class PropertiesAPI:
         Returns:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
-        return update_document({"_id": ObjectId(property_id)}, update_data)
+        return update_document(properties_collection, {"_id": ObjectId(property_id)}, update_data)
 
     @staticmethod
     def delete_property(property_id: str) -> int:
@@ -95,7 +92,7 @@ class PropertiesAPI:
         Returns:
             int: Number of documents deleted (1 if successful, 0 if not found)
         """
-        return delete_document({"_id": ObjectId(property_id)})
+        return delete_document(properties_collection, {"_id": ObjectId(property_id)})
 
     @staticmethod
     def search_properties(query: Dict) -> List[Dict]:
@@ -127,27 +124,9 @@ class PropertiesAPI:
             int: Number of documents modified (1 if successful, 0 if not found)
         """
         return update_document(
+            properties_collection,
             {"_id": ObjectId(property_id)},
             {"$set": {"address": address_data}}
-        )
-        
-    @staticmethod
-    def add_owner(property_id: str, owner_data: Dict) -> int:
-        """
-        Add a new owner to a property.
-        
-        Args:
-            property_id (str): The ID of the property
-            owner_data (Dict): Owner information with fields:
-                - name (str): Owner name
-                - contact_info (Dict): Contact information
-                
-        Returns:
-            int: Number of documents modified (1 if successful, 0 if not found)
-        """
-        return update_document(
-            {"_id": ObjectId(property_id)},
-            {"$push": {"owners": owner_data}}
         )
         
     @staticmethod

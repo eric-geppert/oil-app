@@ -93,7 +93,7 @@ class CompanyOwnershipAPI:
         Returns:
             Optional[Dict]: The ownership document if found, None otherwise
         """
-        return get_document({"_id": ObjectId(ownership_id)})
+        return get_document(company_ownership_collection, {"_id": ObjectId(ownership_id)})
 
     @staticmethod
     def get_all_company_ownerships() -> List[Dict]:
@@ -141,7 +141,7 @@ class CompanyOwnershipAPI:
             if date_to < date_from:
                 raise ValueError("date_to must be after date_from")
                 
-        return update_document({"_id": ObjectId(ownership_id)}, update_data)
+        return update_document(company_ownership_collection, {"_id": ObjectId(ownership_id)}, update_data)
 
     @staticmethod
     def delete_company_ownership(ownership_id: str) -> int:
@@ -154,7 +154,7 @@ class CompanyOwnershipAPI:
         Returns:
             int: Number of documents deleted (1 if successful, 0 if not found)
         """
-        return delete_document({"_id": ObjectId(ownership_id)})
+        return delete_document(company_ownership_collection, {"_id": ObjectId(ownership_id)})
 
     @staticmethod
     def search_company_ownerships(query: Dict) -> List[Dict]:
