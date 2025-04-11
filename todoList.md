@@ -47,8 +47,16 @@ todays todo:
 - restyling of front end to put the tabs on the left (cursor did it), added front end code for the accounts
 - made main nav drawer on the left collapsable
 - removed company from and company_to in transactions just made it company, updated api endpoints, server, and fe code"
+- updated from using gross, net, taxed amount to single amount in backend, added entries table and FE code, put transactions inside of that
 
 todo:
+
+- make the entry just default be open, and not try to display already completed entries
+- add post entries, that does some verification
+- add unpost entries (don't allow on closed out years, have to add that in too- for now just put a comment on that page in the ui)
+- add aggregation by revenue and shiz
+
+lil later:
 
 - fix dates on front end
 - deploy move be files under BE folder
