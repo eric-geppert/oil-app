@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -40,6 +41,7 @@ import {
 const API_BASE_URL = "http://localhost:5001/api";
 
 function Entries() {
+  const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -137,8 +139,9 @@ function Entries() {
       const response = await axios.get(
         `${API_BASE_URL}/entries/${entry._id}?include_transactions=true`
       );
-      setSelectedEntry(response.data);
-      setShowViewModal(true);
+      navigate(`/entries/${entry._id}/transactions`, {
+        state: { entry: response.data },
+      });
     } catch (error) {
       setError("Failed to fetch entry details");
       console.error("Error fetching entry details:", error);

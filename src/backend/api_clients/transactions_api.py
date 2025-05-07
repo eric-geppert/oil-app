@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from bson import ObjectId
 from typing import Dict, List, Optional
-from utils import create_document, get_document, get_all_documents, update_document, delete_document
+from utils import create_document, get_document, get_all_documents, update_document, delete_document, convert_objectid_to_str
 from datetime import datetime
 
 # MongoDB connection
@@ -75,7 +75,8 @@ class TransactionsAPI:
         Returns:
             Optional[Dict]: The transaction document if found, None otherwise
         """
-        return get_document(transactions_collection, {"_id": ObjectId(transaction_id)})
+        transaction = get_document(transactions_collection, {"_id": ObjectId(transaction_id)})
+        return convert_objectid_to_str(transaction) if transaction else None
 
     @staticmethod
     def get_all_transactions() -> List[Dict]:
@@ -85,7 +86,8 @@ class TransactionsAPI:
         Returns:
             List[Dict]: List of all transaction documents
         """
-        return get_all_documents(transactions_collection)
+        transactions = list(transactions_collection.find())
+        return [convert_objectid_to_str(transaction) for transaction in transactions]
 
     @staticmethod
     def update_transaction(transaction_id: str, update_data: Dict) -> int:

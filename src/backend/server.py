@@ -20,13 +20,17 @@ CORS(app, resources={
     }
 })
 
-# Custom JSON encoder to handle MongoDB ObjectId
+# Custom JSON encoder to handle MongoDB ObjectId and nested structures
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
             return str(obj)
         if isinstance(obj, datetime):
             return obj.isoformat()
+        if isinstance(obj, dict):
+            return {key: self.default(value) for key, value in obj.items()}
+        if isinstance(obj, list):
+            return [self.default(item) for item in obj]
         return super().default(obj)
 
 app.json_encoder = JSONEncoder
@@ -37,6 +41,10 @@ def json_serial(obj):
         return str(obj)
     if isinstance(obj, datetime):
         return obj.isoformat()
+    if isinstance(obj, dict):
+        return {key: json_serial(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [json_serial(item) for item in obj]
     raise TypeError(f"Type {type(obj)} not serializable")
 
 # Properties endpoints
@@ -365,51 +373,28 @@ def get_inactive_accounts():
 @app.route('/api/entries', methods=['GET'])
 def get_entries():
     try:
-        # Check if we need to filter by type
-        entry_type = request.args.get('type')
-        if entry_type:
-            entries = EntriesAPI.get_entries_by_type(entry_type)
-            return jsonify(entries), 200
-        
-        # Check if we need to filter by status
-        status = request.args.get('status')
-        if status:
-            entries = EntriesAPI.get_entries_by_status(status)
-            return jsonify(entries), 200
-        
-        # Check if we need to filter by date range
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
-        if start_date and end_date:
-            try:
-                start = datetime.fromisoformat(start_date)
-                end = datetime.fromisoformat(end_date)
-                entries = EntriesAPI.get_entries_by_date_range(start, end)
-                return jsonify(entries), 200
-            except ValueError:
-                return jsonify({"error": "Invalid date format. Use ISO format (YYYY-MM-DD)"}), 400
-        
-        # If no filters, get all entries
         entries = EntriesAPI.get_all_entries()
-        return jsonify(entries), 200
+        # Ensure all ObjectIds are converted to strings
+        serialized_entries = json.loads(json.dumps(entries, default=json_serial))
+        return jsonify(serialized_entries)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/entries/<entry_id>', methods=['GET'])
 def get_entry(entry_id):
     try:
-        # Check if we want to include transactions
         include_transactions = request.args.get('include_transactions', 'false').lower() == 'true'
         
         if include_transactions:
-            entry = EntriesAPI.get_entry_with_transactions(entry_id)
+            entry_data = EntriesAPI.get_entry_with_transactions(entry_id)
         else:
-            entry = EntriesAPI.get_entry(entry_id)
+            entry_data = EntriesAPI.get_entry(entry_id)
             
-        if not entry:
-            return jsonify({"error": "Entry not found"}), 404
-            
-        return jsonify(entry), 200
+        if entry_data:
+            # Explicitly serialize the response
+            serialized_data = json.loads(json.dumps(entry_data, default=json_serial))
+            return jsonify(serialized_data)
+        return jsonify({"error": "Entry not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -417,22 +402,8 @@ def get_entry(entry_id):
 def create_entry():
     try:
         entry_data = request.json
-        
-        # Validate required fields
-        required_fields = ["title", "transaction_ids", "entry_date", "entry_type", "status"]
-        for field in required_fields:
-            if field not in entry_data:
-                return jsonify({"error": f"Missing required field: {field}"}), 400
-        
-        # Convert entry_date string to datetime if needed
-        if isinstance(entry_data["entry_date"], str):
-            try:
-                entry_data["entry_date"] = datetime.fromisoformat(entry_data["entry_date"])
-            except ValueError:
-                return jsonify({"error": "Invalid date format. Use ISO format (YYYY-MM-DD)"}), 400
-        
         entry_id = EntriesAPI.create_entry(entry_data)
-        return jsonify({"id": entry_id, "message": "Entry created successfully"}), 201
+        return jsonify({"_id": entry_id, "message": "Entry created successfully"}), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -442,19 +413,10 @@ def create_entry():
 def update_entry(entry_id):
     try:
         update_data = request.json
-        
-        # Convert entry_date string to datetime if needed
-        if "entry_date" in update_data and isinstance(update_data["entry_date"], str):
-            try:
-                update_data["entry_date"] = datetime.fromisoformat(update_data["entry_date"])
-            except ValueError:
-                return jsonify({"error": "Invalid date format. Use ISO format (YYYY-MM-DD)"}), 400
-        
         result = EntriesAPI.update_entry(entry_id, update_data)
-        if result == 0:
-            return jsonify({"error": "Entry not found"}), 404
-            
-        return jsonify({"message": "Entry updated successfully"}), 200
+        if result:
+            return jsonify({"message": "Entry updated successfully"})
+        return jsonify({"error": "Entry not found"}), 404
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -464,10 +426,9 @@ def update_entry(entry_id):
 def delete_entry(entry_id):
     try:
         result = EntriesAPI.delete_entry(entry_id)
-        if result == 0:
-            return jsonify({"error": "Entry not found"}), 404
-            
-        return jsonify({"message": "Entry deleted successfully"}), 200
+        if result:
+            return jsonify({"message": "Entry deleted successfully"})
+        return jsonify({"error": "Entry not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

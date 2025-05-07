@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Form, Modal, Alert } from "react-bootstrap";
-import axios from "axios";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Box,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Paper,
+  Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
   TextField,
-  MenuItem,
-  Grid,
   Typography,
-  Button as MuiButton,
+  Alert,
+  Grid,
+  MenuItem,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
+import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5001/api";
 
 function Transactions() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { entryId } = useParams();
   const [transactions, setTransactions] = useState([]);
   const [properties, setProperties] = useState([]);
   const [companies, setCompanies] = useState([]);
@@ -38,33 +44,32 @@ function Transactions() {
     property_id: "",
     company_id: "",
     transaction_date: "",
-    gross_amount: "",
-    net_amount: "",
-    taxes_paid_amount: "",
-    merchandise_transacted: "",
-    amount_of_merch_transacted: "",
-    merchandise_type: "",
-    barrels_of_oil: "",
-    service1: "",
+    amount: "",
+    description: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [entry, setEntry] = useState(null);
 
   useEffect(() => {
-    fetchTransactions();
+    if (entryId) {
+      fetchEntryTransactions();
+    }
     fetchProperties();
     fetchCompanies();
-  }, []);
+  }, [entryId]);
 
-  const fetchTransactions = async () => {
+  const fetchEntryTransactions = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/transactions`);
-      setTransactions(response.data);
+      const response = await axios.get(
+        `${API_BASE_URL}/entries/${entryId}?include_transactions=true`
+      );
+      setEntry(response.data);
+      setTransactions(response.data.transactions || []);
     } catch (error) {
-      setError("Failed to fetch transactions");
-      console.error("Error fetching transactions:", error);
+      setError("Failed to fetch entry transactions");
+      console.error("Error fetching entry transactions:", error);
     }
   };
 
@@ -96,15 +101,8 @@ function Transactions() {
         transaction_date: transaction.transaction_date
           ? transaction.transaction_date.split("T")[0]
           : "",
-        gross_amount: transaction.gross_amount || "",
-        net_amount: transaction.net_amount || "",
-        taxes_paid_amount: transaction.taxes_paid_amount || "",
-        merchandise_transacted: transaction.merchandise_transacted || "",
-        amount_of_merch_transacted:
-          transaction.amount_of_merch_transacted || "",
-        merchandise_type: transaction.merchandise_type || "",
-        barrels_of_oil: transaction.barrels_of_oil || "",
-        service1: transaction.service1 || "",
+        amount: transaction.amount || "",
+        description: transaction.description || "",
       });
     } else {
       setEditMode(false);
@@ -113,14 +111,8 @@ function Transactions() {
         property_id: "",
         company_id: "",
         transaction_date: "",
-        gross_amount: "",
-        net_amount: "",
-        taxes_paid_amount: "",
-        merchandise_transacted: "",
-        amount_of_merch_transacted: "",
-        merchandise_type: "",
-        barrels_of_oil: "",
-        service1: "",
+        amount: "",
+        description: "",
       });
     }
     setShowModal(true);
@@ -134,14 +126,8 @@ function Transactions() {
       property_id: "",
       company_id: "",
       transaction_date: "",
-      gross_amount: "",
-      net_amount: "",
-      taxes_paid_amount: "",
-      merchandise_transacted: "",
-      amount_of_merch_transacted: "",
-      merchandise_type: "",
-      barrels_of_oil: "",
-      service1: "",
+      amount: "",
+      description: "",
     });
   };
 
@@ -155,10 +141,18 @@ function Transactions() {
         );
         setSuccess("Transaction updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/transactions`, formData);
+        const response = await axios.post(
+          `${API_BASE_URL}/transactions`,
+          formData
+        );
+        if (entryId) {
+          await axios.put(`${API_BASE_URL}/entries/${entryId}`, {
+            transaction_ids: [...entry.transaction_ids, response.data._id],
+          });
+        }
         setSuccess("Transaction created successfully");
       }
-      fetchTransactions();
+      fetchEntryTransactions();
       handleClose();
     } catch (error) {
       setError(error.response?.data?.error || "Failed to save transaction");
@@ -170,8 +164,15 @@ function Transactions() {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
         await axios.delete(`${API_BASE_URL}/transactions/${transactionId}`);
+        if (entryId) {
+          await axios.put(`${API_BASE_URL}/entries/${entryId}`, {
+            transaction_ids: entry.transaction_ids.filter(
+              (id) => id !== transactionId
+            ),
+          });
+        }
         setSuccess("Transaction deleted successfully");
-        fetchTransactions();
+        fetchEntryTransactions();
       } catch (error) {
         setError(error.response?.data?.error || "Failed to delete transaction");
         console.error("Error deleting transaction:", error);
@@ -206,19 +207,28 @@ function Transactions() {
           mb: 3,
         }}
       >
-        <Typography variant="h4">Transactions</Typography>
-        <MuiButton
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {entryId && (
+            <IconButton onClick={() => navigate("/entries")} color="primary">
+              <ArrowBackIcon />
+            </IconButton>
+          )}
+          <Typography variant="h4">
+            {entry ? `Transactions for ${entry.title}` : "Transactions"}
+          </Typography>
+        </Box>
+        <Button
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
           onClick={() => handleOpen()}
         >
           Add Transaction
-        </MuiButton>
+        </Button>
       </Box>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
 
       <TableContainer component={Paper}>
         <Table>
@@ -227,9 +237,8 @@ function Transactions() {
               <TableCell>Date</TableCell>
               <TableCell>Property</TableCell>
               <TableCell>Company</TableCell>
-              <TableCell>Gross Amount</TableCell>
-              <TableCell>Net Amount</TableCell>
-              <TableCell>Taxes Paid</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Description</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -247,25 +256,18 @@ function Transactions() {
                   {getPropertyName(transaction.property_id)}
                 </TableCell>
                 <TableCell>{getCompanyName(transaction.company_id)}</TableCell>
-                <TableCell>
-                  ${Number(transaction.gross_amount || 0).toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  ${Number(transaction.net_amount || 0).toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  ${Number(transaction.taxes_paid_amount || 0).toFixed(2)}
-                </TableCell>
+                <TableCell>${transaction.amount}</TableCell>
+                <TableCell>{transaction.description}</TableCell>
                 <TableCell>
                   <IconButton
-                    onClick={() => handleOpen(transaction)}
                     color="primary"
+                    onClick={() => handleOpen(transaction)}
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    onClick={() => handleDelete(transaction._id)}
                     color="error"
+                    onClick={() => handleDelete(transaction._id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -333,34 +335,10 @@ function Transactions() {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  name="gross_amount"
-                  label="Gross Amount"
+                  name="amount"
+                  label="Amount"
                   type="number"
-                  value={formData.gross_amount}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="net_amount"
-                  label="Net Amount"
-                  type="number"
-                  value={formData.net_amount}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="taxes_paid_amount"
-                  label="Taxes Paid"
-                  type="number"
-                  value={formData.taxes_paid_amount}
+                  value={formData.amount}
                   onChange={handleChange}
                   fullWidth
                   required
@@ -369,49 +347,9 @@ function Transactions() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  name="merchandise_transacted"
-                  label="Merchandise Description"
-                  value={formData.merchandise_transacted}
-                  onChange={handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="amount_of_merch_transacted"
-                  label="Amount of Merchandise"
-                  type="number"
-                  value={formData.amount_of_merch_transacted}
-                  onChange={handleChange}
-                  fullWidth
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="merchandise_type"
-                  label="Merchandise Type"
-                  value={formData.merchandise_type}
-                  onChange={handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="barrels_of_oil"
-                  label="Barrels of Oil"
-                  type="number"
-                  value={formData.barrels_of_oil}
-                  onChange={handleChange}
-                  fullWidth
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="service1"
-                  label="Service"
-                  value={formData.service1}
+                  name="description"
+                  label="Description"
+                  value={formData.description}
                   onChange={handleChange}
                   fullWidth
                 />
@@ -419,10 +357,10 @@ function Transactions() {
             </Grid>
           </DialogContent>
           <DialogActions>
-            <MuiButton onClick={handleClose}>Cancel</MuiButton>
-            <MuiButton type="submit" variant="contained" color="primary">
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary">
               {editMode ? "Update" : "Add"}
-            </MuiButton>
+            </Button>
           </DialogActions>
         </form>
       </Dialog>
