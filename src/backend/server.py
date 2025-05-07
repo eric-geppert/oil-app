@@ -178,14 +178,12 @@ def create_transaction():
         # Validate amount is a number
         try:
             amount = float(data['amount'])
-            if amount < 0:
-                return jsonify({'error': 'amount cannot be negative'}), 400
         except (ValueError, TypeError):
             return jsonify({'error': 'amount must be a valid number'}), 400
             
         # Create transaction
         transaction_id = TransactionsAPI.create_transaction(data)
-        return jsonify({'id': transaction_id}), 201
+        return jsonify({'_id': transaction_id}), 201
         
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -201,8 +199,6 @@ def update_transaction(transaction_id):
         if 'amount' in data:
             try:
                 amount = float(data['amount'])
-                if amount < 0:
-                    return jsonify({'error': 'amount cannot be negative'}), 400
             except (ValueError, TypeError):
                 return jsonify({'error': 'amount must be a valid number'}), 400
                 

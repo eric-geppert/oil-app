@@ -46,8 +46,6 @@ class TransactionsAPI:
         # Validate amount is a number
         try:
             amount = float(transaction_data["amount"])
-            if amount < 0:
-                raise ValueError("amount cannot be negative")
         except (ValueError, TypeError):
             raise ValueError("amount must be a valid number")
                 
@@ -57,8 +55,6 @@ class TransactionsAPI:
             if field in transaction_data and transaction_data[field] is not None:
                 try:
                     amount = float(transaction_data[field])
-                    if amount < 0:
-                        raise ValueError(f"{field} cannot be negative")
                 except (ValueError, TypeError):
                     raise ValueError(f"{field} must be a valid number")
             
@@ -107,8 +103,6 @@ class TransactionsAPI:
         if "amount" in update_data:
             try:
                 amount = float(update_data["amount"])
-                if amount < 0:
-                    raise ValueError("amount cannot be negative")
             except (ValueError, TypeError):
                 raise ValueError("amount must be a valid number")
                     
@@ -118,8 +112,6 @@ class TransactionsAPI:
             if field in update_data and update_data[field] is not None:
                 try:
                     amount = float(update_data[field])
-                    if amount < 0:
-                        raise ValueError(f"{field} cannot be negative")
                 except (ValueError, TypeError):
                     raise ValueError(f"{field} must be a valid number")
                 
