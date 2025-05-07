@@ -29,7 +29,7 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Visibility as ViewIcon,
+  Receipt as ReceiptIcon,
 } from "@mui/icons-material";
 
 const API_BASE_URL = "http://localhost:5001/api";
@@ -251,21 +251,21 @@ function Entries() {
                   <IconButton
                     color="primary"
                     onClick={() => handleView(entry)}
-                    title="View"
+                    title="Manage Transactions"
                   >
-                    <ViewIcon />
+                    <ReceiptIcon />
                   </IconButton>
                   <IconButton
                     color="primary"
                     onClick={() => handleOpen(entry)}
-                    title="Edit"
+                    title="Edit Entry"
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(entry._id)}
-                    title="Delete"
+                    title="Delete Entry"
                   >
                     <DeleteIcon />
                   </IconButton>
