@@ -23,6 +23,7 @@ import {
   LocationOn as LocationOnIcon,
   Dashboard as DashboardIcon,
   People as PeopleIcon,
+  Receipt as ReceiptIcon,
 } from "@mui/icons-material";
 import {
   BrowserRouter as Router,
@@ -36,6 +37,7 @@ import Companies from "./components/Companies";
 import Entries from "./components/Entries";
 import Dashboard from "./components/Dashboard";
 import CompanyOwnership from "./components/CompanyOwnership";
+import Transactions from "./components/Transactions";
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 65;
@@ -225,6 +227,10 @@ function AppContent() {
           <Route path="/properties" element={<Properties />} />
           <Route path="/company-ownership" element={<CompanyOwnership />} />
           <Route path="/entries" element={<Entries />} />
+          <Route
+            path="/entries/:entryId/transactions"
+            element={<Transactions />}
+          />
         </Routes>
       </Box>
     </Box>

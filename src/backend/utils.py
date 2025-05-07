@@ -23,15 +23,15 @@ def convert_objectid_to_str(obj):
 
 # Read (Retrieve)
 def get_document(collection, query):
+    """Get a single document from a collection and convert ObjectIds to strings."""
     doc = collection.find_one(query)
     if doc:
         return convert_objectid_to_str(doc)
     return doc
 
 def get_all_documents(collection):
-    print("alll stuffs")
+    """Get all documents from a collection and convert ObjectIds to strings."""
     documents = list(collection.find())
-    # Convert ObjectId to string for each document and its nested fields
     return [convert_objectid_to_str(doc) for doc in documents]
 
 # Update
