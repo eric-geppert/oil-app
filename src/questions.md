@@ -8,3 +8,18 @@ questions:
 ----4/10
 
 - what fields should accounts table have in each account?
+
+-----5/8/25
+
+- so each transaction has an "account" hooked up to it?
+- then does each transaction have the gross,taxes, etc or do you put each of those in separately?
+- \*\* should this be where you put in your ownership percentage? right now have that set in other table with dates, then you just get a single check from them and we don't need to take out percentages from there?
+
+  - I guess the oil company paying only sends you your percentage to begin with so Need to have 2 separate paths here 1. oil company payer 2. owner (receiver)
+
+- (5/9) can you give me some examples of accounts your paying to?
+
+less important:
+
+- should all of the transactions in an entry be for the same property or company? -> thinking not
+  how are they grouped? just however you want

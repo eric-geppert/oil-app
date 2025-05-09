@@ -53,17 +53,40 @@ todays todo:
 - moved all backend files to folder called backend
 
 (excuse for being so long: took vacation and was drowning trying to get the rental ready before I left to europe)
-5/5/25:
+5/7/25:
 
-- get transactions working like I want
+- fixed transaction creating undefined
+- updated BE to allow transactions to be negative to balance
+- made transactions be a separate screen inside of entries
+- redid the path object to be /entry/<entry-id>/transactions
+- removed now un used code in the old modal
+- lots of troubleshooting that included a big reworking the way the transcribing jsonObjectId worked
+
+5/8/25:
+
+done:
+
+- removed validation on FE not allowing neg transaction amount
+- did some research on where to keep documentation ->
+  - **answer**:
+    - Notion with screenshot "how tos"
+    - embeded youtube videos with short demos
+    - it's free to share unlimited times and basic non technical user friendly
+- bought cursor for a year and canceled auto-renewing
+
+todo:
+
+- implement accounts tab\*\*\*\*
+- need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
+- - add some default accounts (how does this tie in again?)
+- get basic summary in
 
 extra:
 
-- get summary table up
+- be able to click on each cell and keep drilling down
 
 todo next time:
 
-- make the entry just default be open, and not try to display already completed entries
 - add post entries, that does some verification
 - add unpost entries (don't allow on closed out years, have to add that in too- for now just put a comment on that page in the ui)
 - add aggregation by revenue and shiz
