@@ -342,7 +342,7 @@ function Transactions() {
                   onChange={handleChange}
                   fullWidth
                   required
-                  inputProps={{ min: 0, step: 0.01 }}
+                  inputProps={{ step: 0.01 }}
                 />
               </Grid>
               <Grid item xs={12}>
