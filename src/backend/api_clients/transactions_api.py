@@ -21,7 +21,7 @@ class TransactionsAPI:
         Args:
             transaction_data (Dict): Transaction information including:
                 - property_id (str): ID of the property (MANDATORY)
-                - company_id (str): ID of the company (MANDATORY)
+                - account_id (str): ID of the account (MANDATORY)
                 - transaction_date (datetime): Date of the transaction (MANDATORY)
                 - amount (float): Amount of the transaction (MANDATORY)
                 - merchandise_transacted (str, optional): Description of merchandise
@@ -38,7 +38,7 @@ class TransactionsAPI:
             ValueError: If required fields are missing or invalid
         """
         # Validate required fields
-        required_fields = ["property_id", "company_id", "transaction_date", "amount"]
+        required_fields = ["property_id", "account_id", "transaction_date", "amount"]
         for field in required_fields:
             if field not in transaction_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
@@ -159,17 +159,17 @@ class TransactionsAPI:
         return list(transactions_collection.find({"property_id": property_id}))
         
     @staticmethod
-    def get_transactions_by_company(company_id: str) -> List[Dict]:
+    def get_transactions_by_account(account_id: str) -> List[Dict]:
         """
-        Get all transactions for a specific company.
+        Get all transactions for a specific account.
         
         Args:
-            company_id (str): The company ID to search for
+            account_id (str): The account ID to search for
             
         Returns:
-            List[Dict]: List of transactions for the specified company
+            List[Dict]: List of transactions for the specified account
         """
-        return list(transactions_collection.find({"company_id": company_id}))
+        return list(transactions_collection.find({"account_id": account_id}))
         
     @staticmethod
     def get_transactions_by_date_range(start_date: datetime, end_date: datetime) -> List[Dict]:

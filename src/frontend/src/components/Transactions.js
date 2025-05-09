@@ -37,12 +37,12 @@ function Transactions() {
   const { entryId } = useParams();
   const [transactions, setTransactions] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [companies, setCompanies] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [formData, setFormData] = useState({
     property_id: "",
-    company_id: "",
+    account_id: "",
     transaction_date: "",
     amount: "",
     description: "",
@@ -57,7 +57,7 @@ function Transactions() {
       fetchEntryTransactions();
     }
     fetchProperties();
-    fetchCompanies();
+    fetchAccounts();
   }, [entryId]);
 
   const fetchEntryTransactions = async () => {
@@ -82,12 +82,12 @@ function Transactions() {
     }
   };
 
-  const fetchCompanies = async () => {
+  const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/companies`);
-      setCompanies(response.data);
+      const response = await axios.get(`${API_BASE_URL}/accounts`);
+      setAccounts(response.data);
     } catch (error) {
-      console.error("Error fetching companies:", error);
+      console.error("Error fetching accounts:", error);
     }
   };
 
@@ -97,7 +97,7 @@ function Transactions() {
       setSelectedTransaction(transaction);
       setFormData({
         property_id: transaction.property_id,
-        company_id: transaction.company_id,
+        account_id: transaction.account_id,
         transaction_date: transaction.transaction_date
           ? transaction.transaction_date.split("T")[0]
           : "",
@@ -109,7 +109,7 @@ function Transactions() {
       setSelectedTransaction(null);
       setFormData({
         property_id: "",
-        company_id: "",
+        account_id: "",
         transaction_date: "",
         amount: "",
         description: "",
@@ -124,7 +124,7 @@ function Transactions() {
     setSelectedTransaction(null);
     setFormData({
       property_id: "",
-      company_id: "",
+      account_id: "",
       transaction_date: "",
       amount: "",
       description: "",
@@ -192,9 +192,9 @@ function Transactions() {
     return property ? property.name : propertyId;
   };
 
-  const getCompanyName = (companyId) => {
-    const company = companies.find((c) => c._id === companyId);
-    return company ? company.name : companyId;
+  const getAccountName = (accountId) => {
+    const account = accounts.find((a) => a._id === accountId);
+    return account ? account.name : accountId;
   };
 
   return (
@@ -236,7 +236,7 @@ function Transactions() {
             <TableRow>
               <TableCell>Date</TableCell>
               <TableCell>Property</TableCell>
-              <TableCell>Company</TableCell>
+              <TableCell>Account</TableCell>
               <TableCell>Amount</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Actions</TableCell>
@@ -255,7 +255,7 @@ function Transactions() {
                 <TableCell>
                   {getPropertyName(transaction.property_id)}
                 </TableCell>
-                <TableCell>{getCompanyName(transaction.company_id)}</TableCell>
+                <TableCell>{getAccountName(transaction.account_id)}</TableCell>
                 <TableCell>${transaction.amount}</TableCell>
                 <TableCell>{transaction.description}</TableCell>
                 <TableCell>
@@ -304,17 +304,17 @@ function Transactions() {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  name="company_id"
-                  label="Company"
-                  value={formData.company_id}
+                  name="account_id"
+                  label="Account"
+                  value={formData.account_id}
                   onChange={handleChange}
                   fullWidth
                   required
                   select
                 >
-                  {companies.map((company) => (
-                    <MenuItem key={company._id} value={company._id}>
-                      {company.name}
+                  {accounts.map((account) => (
+                    <MenuItem key={account._id} value={account._id}>
+                      {account.name}
                     </MenuItem>
                   ))}
                 </TextField>
