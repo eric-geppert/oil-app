@@ -9,7 +9,7 @@ questions:
 
 - what fields should accounts table have in each account?
 
------5/8/25
+-----5/8/25 \*\*\*\*
 
 - so each transaction has an "account" hooked up to it?
 - then does each transaction have the gross,taxes, etc or do you put each of those in separately?
@@ -18,8 +18,4 @@ questions:
   - I guess the oil company paying only sends you your percentage to begin with so Need to have 2 separate paths here 1. oil company payer 2. owner (receiver)
 
 - (5/9) can you give me some examples of accounts your paying to?
-
-less important:
-
-- should all of the transactions in an entry be for the same property or company? -> thinking not
-  how are they grouped? just however you want
+- when do you submit an entry? where can you see it after that?

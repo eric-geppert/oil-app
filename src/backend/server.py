@@ -100,6 +100,22 @@ def delete_property(property_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/properties/<property_id>/trends', methods=['GET'])
+def get_property_trends(property_id):
+    try:
+        # Get the number of years from query parameter, default to 3
+        years = request.args.get('years', default=3, type=int)
+        
+        # Validate years parameter
+        if years not in [1, 2, 3, 5]:
+            return jsonify({'error': 'years must be 1, 2, 3, or 5'}), 400
+            
+        # Get trend data
+        trend_data = TransactionsAPI.get_property_trends(property_id, years)
+        return jsonify(trend_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Companies endpoints
 @app.route('/api/companies', methods=['GET'])
 def get_companies():

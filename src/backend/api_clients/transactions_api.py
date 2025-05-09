@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from typing import Dict, List, Optional
 from utils import create_document, get_document, get_all_documents, update_document, delete_document, convert_objectid_to_str
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # MongoDB connection
 uri = "mongodb+srv://ericgeppert04:Henry4likes2run@cluster0.pls3v.mongodb.net/?retryWrites=true&w=majority"
@@ -237,4 +237,84 @@ class TransactionsAPI:
         """
         transactions = list(transactions_collection.find({"property_id": property_id}))
         total_amount = sum(transaction.get("amount", 0) for transaction in transactions)
-        return total_amount 
+        return total_amount
+
+    @staticmethod
+    def get_property_trends(property_id: str, years: int = 3) -> List[Dict]:
+        """
+        Get monthly income trends for a property over a specified number of years.
+        
+        Args:
+            property_id (str): The ID of the property
+            years (int): Number of years to look back (default: 3)
+            
+        Returns:
+            List[Dict]: List of yearly data with monthly breakdowns
+        """
+        # Calculate the start date (years ago from today)
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=365 * years)
+        
+        print(f"Fetching transactions for property {property_id} from {start_date} to {end_date}")
+        
+        # Get all transactions for the property
+        transactions = list(transactions_collection.find({
+            "property_id": property_id
+        }))
+        
+        print(f"Found {len(transactions)} transactions")
+        
+        # Debug: Print first transaction to see its structure
+        if transactions:
+            print(f"Sample transaction: {transactions[0]}")
+        
+        # Initialize result structure
+        result = []
+        current_year = end_date.year
+        
+        # Process each year
+        for year in range(current_year - years + 1, current_year + 1):
+            year_data = {
+                "year": year,
+                "monthly_data": []
+            }
+            
+            # Initialize monthly amounts
+            monthly_amounts = {month: 0 for month in range(1, 13)}
+            
+            # Sum up transactions for each month
+            for transaction in transactions:
+                try:
+                    # Get transaction date, defaulting to created_at if transaction_date is not present
+                    trans_date = transaction.get("transaction_date") or transaction.get("created_at")
+                    if not trans_date:
+                        print(f"Warning: No date found for transaction {transaction.get('_id')}")
+                        continue
+                        
+                    # Convert transaction_date to datetime if it's a string
+                    if isinstance(trans_date, str):
+                        trans_date = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
+                    
+                    # Check if the transaction is within our date range
+                    if start_date <= trans_date <= end_date and trans_date.year == year:
+                        month = trans_date.month
+                        # Convert amount to float if it's a string
+                        amount = transaction.get("amount", 0)
+                        if isinstance(amount, str):
+                            amount = float(amount)
+                        monthly_amounts[month] += amount
+                        print(f"Adding amount {amount} for {year}-{month}")
+                except Exception as e:
+                    print(f"Error processing transaction {transaction.get('_id')}: {str(e)}")
+                    continue
+            
+            # Convert monthly amounts to the required format
+            year_data["monthly_data"] = [
+                {"month": month, "amount": amount}
+                for month, amount in monthly_amounts.items()
+            ]
+            
+            result.append(year_data)
+        
+        print(f"Final result: {result}")
+        return result 

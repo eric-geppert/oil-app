@@ -25,6 +25,7 @@ import {
   People as PeopleIcon,
   Receipt as ReceiptIcon,
   AccountBalance as AccountBalanceIcon,
+  TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
 import {
   BrowserRouter as Router,
@@ -40,6 +41,7 @@ import Dashboard from "./components/Dashboard";
 import CompanyOwnership from "./components/CompanyOwnership";
 import Transactions from "./components/Transactions";
 import Accounts from "./components/Accounts";
+import Trends from "./components/Trends";
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 65;
@@ -55,6 +57,7 @@ const menuItems = [
   },
   { text: "Entries", icon: <DescriptionIcon />, path: "/entries" },
   { text: "Accounts", icon: <AccountBalanceIcon />, path: "/accounts" },
+  { text: "Trends", icon: <TrendingUpIcon />, path: "/trends" },
 ];
 
 function AppContent() {
@@ -231,6 +234,7 @@ function AppContent() {
           <Route path="/company-ownership" element={<CompanyOwnership />} />
           <Route path="/entries" element={<Entries />} />
           <Route path="/accounts" element={<Accounts />} />
+          <Route path="/trends" element={<Trends />} />
           <Route
             path="/entries/:entryId/transactions"
             element={<Transactions />}

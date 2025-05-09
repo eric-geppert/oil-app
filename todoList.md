@@ -75,8 +75,7 @@ todays todo:
 5/9/25:
 
 - ✅implement accounts tab\*\*\*\*
-- need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
-- - add some default accounts (how does this tie in again?)
+- ✅need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
 
 - get basic summary in
 

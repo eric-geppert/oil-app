@@ -15,4 +15,5 @@ Click on the CSV File or File button at the bottom of the screen to export the r
 
 - allow for separate users
 - when a new user is created, add them with some default information (or give them the option to start with default accounts and examples)
+  - have pic from 4/7 with default accounts and good transactions on it
 - add authentication
