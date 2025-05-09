@@ -48,6 +48,7 @@ function Entries() {
     entry_date: "",
     entry_type: "monthly",
     status: "draft",
+    transaction_ids: [],
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -97,6 +98,7 @@ function Entries() {
         entry_date: entry.entry_date ? entry.entry_date.split("T")[0] : "",
         entry_type: entry.entry_type || "monthly",
         status: entry.status || "draft",
+        transaction_ids: entry.transaction_ids || [],
       });
     } else {
       setEditMode(false);
@@ -107,6 +109,7 @@ function Entries() {
         entry_date: "",
         entry_type: "monthly",
         status: "draft",
+        transaction_ids: [],
       });
     }
     setShowModal(true);
@@ -137,6 +140,7 @@ function Entries() {
       entry_date: "",
       entry_type: "monthly",
       status: "draft",
+      transaction_ids: [],
     });
   };
 

@@ -64,8 +64,6 @@ todays todo:
 
 5/8/25:
 
-done:
-
 - removed validation on FE not allowing neg transaction amount
 - did some research on where to keep documentation ->
   - **answer**:
@@ -74,11 +72,12 @@ done:
     - it's free to share unlimited times and basic non technical user friendly
 - bought cursor for a year and canceled auto-renewing
 
-todo:
+5/9/25:
 
-- implement accounts tab\*\*\*\*
+- ✅implement accounts tab\*\*\*\*
 - need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
 - - add some default accounts (how does this tie in again?)
+
 - get basic summary in
 
 extra:
