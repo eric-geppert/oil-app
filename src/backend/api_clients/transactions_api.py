@@ -318,3 +318,54 @@ class TransactionsAPI:
         
         print(f"Final result: {result}")
         return result 
+
+    @staticmethod
+    def get_transactions_by_property_and_month(property_id: str, year: int, month: int) -> List[Dict]:
+        """
+        Get all transactions for a specific property in a given month and year.
+        
+        Args:
+            property_id (str): The property ID to search for
+            year (int): The year to search in
+            month (int): The month to search in (1-12)
+            
+        Returns:
+            List[Dict]: List of transactions for the specified property and month
+        """
+        # Validate month
+        if not 1 <= month <= 12:
+            raise ValueError("Month must be between 1 and 12")
+            
+        # Calculate start and end dates for the month
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+            
+        # Get all transactions for the property
+        transactions = list(transactions_collection.find({
+            "property_id": property_id
+        }))
+        
+        # Filter transactions by date
+        filtered_transactions = []
+        for transaction in transactions:
+            try:
+                # Get transaction date, defaulting to created_at if transaction_date is not present
+                trans_date = transaction.get("transaction_date") or transaction.get("created_at")
+                if not trans_date:
+                    continue
+                    
+                # Convert transaction_date to datetime if it's a string
+                if isinstance(trans_date, str):
+                    trans_date = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
+                
+                # Check if the transaction is within our month
+                if start_date <= trans_date < end_date:
+                    filtered_transactions.append(transaction)
+            except Exception as e:
+                print(f"Error processing transaction {transaction.get('_id')}: {str(e)}")
+                continue
+                
+        return filtered_transactions 

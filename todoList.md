@@ -76,8 +76,11 @@ todays todo:
 
 - ✅implement accounts tab\*\*\*\*
 - ✅need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
-
-- get basic summary in
+- ✅Aggregate by property/date
+- be able to drill into each cell to get more detail
+  - (but these will be under different entries? how can we get what entry they're under?)
+- Aggregate by company or by land
+- add trend line graphs below
 
 extra:
 

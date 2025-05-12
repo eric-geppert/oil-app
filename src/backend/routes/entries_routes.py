@@ -8,6 +8,20 @@ entries_bp = Blueprint('entries', __name__)
 def get_entries():
     """Get all entries or filter by query parameters"""
     try:
+        # Check if we need to filter by property, year, and month
+        property_id = request.args.get('property_id')
+        year = request.args.get('year')
+        month = request.args.get('month')
+        
+        if property_id and year and month:
+            try:
+                year = int(year)
+                month = int(month)
+                entries = EntriesAPI.get_entries_by_property_year_month(property_id, year, month)
+                return jsonify(entries), 200
+            except ValueError:
+                return jsonify({"error": "Invalid year or month format"}), 400
+        
         # Check if we need to filter by type
         entry_type = request.args.get('type')
         if entry_type:

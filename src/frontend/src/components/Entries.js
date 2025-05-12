@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Button,
@@ -36,6 +36,7 @@ const API_BASE_URL = "http://localhost:5001/api";
 
 function Entries() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [entries, setEntries] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -53,16 +54,33 @@ function Entries() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [editMode, setEditMode] = useState(false);
+  const [filters, setFilters] = useState(null);
 
   useEffect(() => {
+    // Get filters from location state if they exist
+    if (location.state?.filters) {
+      setFilters(location.state.filters);
+    }
     fetchEntries();
     fetchCompanies();
     fetchProperties();
-  }, []);
+  }, [location]);
 
   const fetchEntries = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/entries`);
+      let url = `${API_BASE_URL}/entries`;
+
+      // Add filters to the URL if they exist
+      if (filters) {
+        const queryParams = new URLSearchParams();
+        if (filters.property_id)
+          queryParams.append("property_id", filters.property_id);
+        if (filters.year) queryParams.append("year", filters.year);
+        if (filters.month) queryParams.append("month", filters.month);
+        url += `?${queryParams.toString()}`;
+      }
+
+      const response = await axios.get(url);
       setEntries(response.data);
     } catch (error) {
       setError("Failed to fetch entries");
@@ -205,7 +223,17 @@ function Entries() {
           mb: 3,
         }}
       >
-        <Typography variant="h4">Entries</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {filters && (
+            <Typography variant="h6" color="text.secondary">
+              Showing entries for {filters.year} -{" "}
+              {new Date(2000, filters.month - 1).toLocaleString("default", {
+                month: "long",
+              })}
+            </Typography>
+          )}
+          <Typography variant="h4">Entries</Typography>
+        </Box>
         <Button
           variant="contained"
           color="primary"

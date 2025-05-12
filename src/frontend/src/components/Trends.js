@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Paper,
@@ -22,6 +23,7 @@ import {
 const API_BASE_URL = "http://localhost:5001/api";
 
 function Trends() {
+  const navigate = useNavigate();
   const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState("");
   const [years, setYears] = useState(3); // Default to 3 years
@@ -74,6 +76,19 @@ function Trends() {
   const getMonthName = (month) => {
     return new Date(2000, month - 1).toLocaleString("default", {
       month: "long",
+    });
+  };
+
+  const handleCellClick = (year, month) => {
+    // Navigate to transactions page with filters
+    navigate(`/entries`, {
+      state: {
+        filters: {
+          property_id: selectedProperty,
+          year: year,
+          month: month,
+        },
+      },
     });
   };
 
@@ -144,13 +159,29 @@ function Trends() {
               {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                 <TableRow key={month}>
                   <TableCell>{getMonthName(month)}</TableCell>
-                  {trendData.map((year) => (
-                    <TableCell key={`${year.year}-${month}`} align="right">
-                      {formatCurrency(
-                        year.monthly_data.find((m) => m.month === month)?.amount
-                      )}
-                    </TableCell>
-                  ))}
+                  {trendData.map((year) => {
+                    const amount = year.monthly_data.find(
+                      (m) => m.month === month
+                    )?.amount;
+                    return (
+                      <TableCell
+                        key={`${year.year}-${month}`}
+                        align="right"
+                        onClick={() => handleCellClick(year.year, month)}
+                        sx={{
+                          cursor: "pointer",
+                          "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                          },
+                          "&:active": {
+                            backgroundColor: "rgba(0, 0, 0, 0.08)",
+                          },
+                        }}
+                      >
+                        {formatCurrency(amount)}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>

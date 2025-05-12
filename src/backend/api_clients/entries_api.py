@@ -259,3 +259,34 @@ class EntriesAPI:
         # Add transactions to the entry
         entry_dict["transactions"] = transactions
         return entry_dict 
+
+    @staticmethod
+    def get_entries_by_property_year_month(property_id: str, year: int, month: int) -> List[Dict]:
+        """
+        Get all entries for a specific property, year, and month.
+        
+        Args:
+            property_id (str): The ID of the property
+            year (int): The year to filter by
+            month (int): The month to filter by (1-12)
+            
+        Returns:
+            List[Dict]: List of entries matching the criteria
+        """
+        # Create start and end dates for the specified month
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+        
+        # Find entries within the date range
+        entries = list(entries_collection.find({
+            "entry_date": {
+                "$gte": start_date,
+                "$lt": end_date
+            }
+        }))
+        
+        # Convert ObjectIds to strings
+        return [convert_objectid_to_str(entry) for entry in entries] 

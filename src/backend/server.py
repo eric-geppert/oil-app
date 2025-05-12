@@ -116,6 +116,32 @@ def get_property_trends(property_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/properties/<property_id>/transactions', methods=['GET'])
+def get_property_transactions_by_month(property_id):
+    try:
+        # Get year and month from query parameters
+        year = request.args.get('year', type=int)
+        month = request.args.get('month', type=int)
+        
+        # Validate parameters
+        if not year or not month:
+            return jsonify({'error': 'year and month parameters are required'}), 400
+            
+        if not 1 <= month <= 12:
+            return jsonify({'error': 'month must be between 1 and 12'}), 400
+            
+        # Get transactions
+        transactions = TransactionsAPI.get_transactions_by_property_and_month(property_id, year, month)
+        
+        # Convert ObjectIds to strings
+        transactions = [convert_objectid_to_str(transaction) for transaction in transactions]
+        
+        return jsonify(transactions)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Companies endpoints
 @app.route('/api/companies', methods=['GET'])
 def get_companies():
