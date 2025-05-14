@@ -11,6 +11,7 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  TableCell,
 } from "@mui/material";
 import {
   Business as BusinessIcon,
@@ -210,6 +211,12 @@ function Dashboard() {
                               {transaction.company_to_name || "Unknown"}
                             </Typography>
                           </Grid>
+                          <TableCell>{transaction.property_name}</TableCell>
+                          <TableCell>{transaction.account_name}</TableCell>
+                          <TableCell>${transaction.amount}</TableCell>
+                          <TableCell>
+                            {transaction.description || "-"}
+                          </TableCell>
                         </Grid>
                       </CardContent>
                     </Card>

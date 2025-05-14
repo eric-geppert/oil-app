@@ -220,7 +220,7 @@ def create_transaction():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['property_id', 'account_id', 'transaction_date', 'amount']
+        required_fields = ['property_id', 'account_id', 'amount']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400

@@ -22,7 +22,6 @@ class TransactionsAPI:
             transaction_data (Dict): Transaction information including:
                 - property_id (str): ID of the property (MANDATORY)
                 - account_id (str): ID of the account (MANDATORY)
-                - transaction_date (datetime): Date of the transaction (MANDATORY)
                 - amount (float): Amount of the transaction (MANDATORY)
                 - merchandise_transacted (str, optional): Description of merchandise
                 - amount_of_merch_transacted (float, optional): Amount of merchandise
@@ -38,7 +37,7 @@ class TransactionsAPI:
             ValueError: If required fields are missing or invalid
         """
         # Validate required fields
-        required_fields = ["property_id", "account_id", "transaction_date", "amount"]
+        required_fields = ["property_id", "account_id", "amount"]
         for field in required_fields:
             if field not in transaction_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
@@ -184,7 +183,7 @@ class TransactionsAPI:
             List[Dict]: List of transactions within the date range
         """
         return list(transactions_collection.find({
-            "transaction_date": {
+            "created_at": {
                 "$gte": start_date,
                 "$lte": end_date
             }
@@ -285,13 +284,13 @@ class TransactionsAPI:
             # Sum up transactions for each month
             for transaction in transactions:
                 try:
-                    # Get transaction date, defaulting to created_at if transaction_date is not present
-                    trans_date = transaction.get("transaction_date") or transaction.get("created_at")
+                    # Get created_at date
+                    trans_date = transaction.get("created_at")
                     if not trans_date:
                         print(f"Warning: No date found for transaction {transaction.get('_id')}")
                         continue
                         
-                    # Convert transaction_date to datetime if it's a string
+                    # Convert created_at to datetime if it's a string
                     if isinstance(trans_date, str):
                         trans_date = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
                     
@@ -352,12 +351,12 @@ class TransactionsAPI:
         filtered_transactions = []
         for transaction in transactions:
             try:
-                # Get transaction date, defaulting to created_at if transaction_date is not present
-                trans_date = transaction.get("transaction_date") or transaction.get("created_at")
+                # Get created_at date
+                trans_date = transaction.get("created_at")
                 if not trans_date:
                     continue
                     
-                # Convert transaction_date to datetime if it's a string
+                # Convert created_at to datetime if it's a string
                 if isinstance(trans_date, str):
                     trans_date = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
                 

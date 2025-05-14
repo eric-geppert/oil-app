@@ -43,7 +43,6 @@ function Transactions() {
   const [formData, setFormData] = useState({
     property_id: "",
     account_id: "",
-    transaction_date: "",
     amount: "",
     description: "",
   });
@@ -98,9 +97,6 @@ function Transactions() {
       setFormData({
         property_id: transaction.property_id,
         account_id: transaction.account_id,
-        transaction_date: transaction.transaction_date
-          ? transaction.transaction_date.split("T")[0]
-          : "",
         amount: transaction.amount || "",
         description: transaction.description || "",
       });
@@ -110,7 +106,6 @@ function Transactions() {
       setFormData({
         property_id: "",
         account_id: "",
-        transaction_date: "",
         amount: "",
         description: "",
       });
@@ -125,7 +120,6 @@ function Transactions() {
     setFormData({
       property_id: "",
       account_id: "",
-      transaction_date: "",
       amount: "",
       description: "",
     });
@@ -234,7 +228,6 @@ function Transactions() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
               <TableCell>Property</TableCell>
               <TableCell>Account</TableCell>
               <TableCell>Amount</TableCell>
@@ -245,13 +238,6 @@ function Transactions() {
           <TableBody>
             {transactions.map((transaction) => (
               <TableRow key={transaction._id}>
-                <TableCell>
-                  {transaction.transaction_date
-                    ? new Date(
-                        transaction.transaction_date
-                      ).toLocaleDateString()
-                    : "-"}
-                </TableCell>
                 <TableCell>
                   {getPropertyName(transaction.property_id)}
                 </TableCell>
@@ -318,20 +304,6 @@ function Transactions() {
                     </MenuItem>
                   ))}
                 </TextField>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  name="transaction_date"
-                  label="Transaction Date"
-                  type="date"
-                  value={formData.transaction_date}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
