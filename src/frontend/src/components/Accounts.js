@@ -38,6 +38,7 @@ const Accounts = () => {
     bank_name: "",
     description: "",
     status: "active",
+    balance: "",
   });
 
   const accountTypes = ["checking", "savings", "investment", "credit", "other"];
@@ -66,6 +67,7 @@ const Accounts = () => {
         bank_name: account.bank_name || "",
         description: account.description || "",
         status: account.status,
+        balance: account.balance || "",
       });
     } else {
       setEditMode(false);
@@ -77,6 +79,7 @@ const Accounts = () => {
         bank_name: "",
         description: "",
         status: "active",
+        balance: "",
       });
     }
     setOpen(true);
@@ -93,6 +96,7 @@ const Accounts = () => {
       bank_name: "",
       description: "",
       status: "active",
+      balance: "",
     });
   };
 
@@ -161,6 +165,7 @@ const Accounts = () => {
               <TableCell>Type</TableCell>
               <TableCell>Account Number</TableCell>
               <TableCell>Bank</TableCell>
+              <TableCell>Balance</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Actions</TableCell>
@@ -173,6 +178,9 @@ const Accounts = () => {
                 <TableCell>{account.account_type}</TableCell>
                 <TableCell>{account.account_number}</TableCell>
                 <TableCell>{account.bank_name || "-"}</TableCell>
+                <TableCell>
+                  ${Number(account.balance || 0).toFixed(2)}
+                </TableCell>
                 <TableCell>{account.description || "-"}</TableCell>
                 <TableCell>{account.status}</TableCell>
                 <TableCell>
@@ -235,6 +243,19 @@ const Accounts = () => {
                   onChange={handleChange}
                   fullWidth
                   required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="balance"
+                  label="Balance"
+                  type="number"
+                  value={formData.balance}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                  inputProps={{ step: "0.01" }}
+                  helperText="Enter positive or negative amount"
                 />
               </Grid>
               <Grid item xs={12}>

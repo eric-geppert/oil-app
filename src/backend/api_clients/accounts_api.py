@@ -21,6 +21,7 @@ class AccountsAPI:
                 - name (str): Account name (MANDATORY)
                 - account_type (str): Type of account (e.g., checking, savings) (MANDATORY)
                 - account_number (str): Account number (MANDATORY)
+                - balance (float): Account balance, can be positive or negative (MANDATORY)
                 - bank_name (str, optional): Name of the bank
                 - description (str, optional): Account description
                 - status (str): Account status (active/inactive) (MANDATORY)
@@ -33,7 +34,7 @@ class AccountsAPI:
             ValueError: If required fields are missing
         """
         # Validate required fields
-        required_fields = ["name", "account_type", "account_number", "status"]
+        required_fields = ["name", "account_type", "account_number", "status", "balance"]
         for field in required_fields:
             if field not in account_data:
                 raise ValueError(f"The '{field}' field is mandatory and cannot be empty")
@@ -41,6 +42,12 @@ class AccountsAPI:
         # Validate status is either active or inactive
         if account_data["status"] not in ["active", "inactive"]:
             raise ValueError("Status must be either 'active' or 'inactive'")
+            
+        # Validate balance is a number
+        try:
+            float(account_data["balance"])
+        except (ValueError, TypeError):
+            raise ValueError("Balance must be a valid number")
             
         # Add creation timestamp if not provided
         if "created_at" not in account_data:

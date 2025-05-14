@@ -77,8 +77,16 @@ todays todo:
 - ✅implement accounts tab\*\*\*\*
 - ✅need to add accounts to the transaction instead of the company (or in addition to it? look at pics)
 - ✅Aggregate by property/date
-- be able to drill into each cell to get more detail
+
+4/11/25:
+
+- ✅be able to drill into each cell to get more detail
   - (but these will be under different entries? how can we get what entry they're under?)
+
+currently have it coded up to go to transactions but it looks like you have it to go to an entry then you can drill down to transactions. But how do entries have a balance? do they not have to be a 0 balance thing?
+may need to erase or stash the code I have written rn.
+then update the entreis table to have a balance column
+
 - Aggregate by company or by land
 - add trend line graphs below
 
@@ -91,3 +99,24 @@ todo next time:
 - add post entries, that does some verification
 - add unpost entries (don't allow on closed out years, have to add that in too- for now just put a comment on that page in the ui)
 - add aggregation by revenue and shiz
+
+------- ignoring above for now
+5/12: had meeting with m and came up with below new understanding and next small critical steps to get general ledger and trends/summary working
+5/13/25:
+
+- ✅update account to start with an initial balance (allow negatives)
+- Make user pick date on entry
+- remove date from transactions (all have to be on the same day)
+- add "post" functionality to the entries backend
+  - add new status: posted/pending
+- only have transactions that are "posted" be part of the trends
+- update the trends tab to be for the balance of the account at the end of the month (is she 100% sure about this?)
+
+- have trend -> click on march-> pull up TRANSACTIONS that effect the account (only POSTED ones) during that month -> when click you pull up the entry it goes with and all other transactions
+
+questions:
+ask mom about initial setup?
+
+- does someone walk through it with you?
+- it defaults with some values?
+- you can or can NOT go back once you've finished setting up?
