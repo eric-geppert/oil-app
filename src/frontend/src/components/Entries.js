@@ -83,7 +83,9 @@ function Entries() {
       }
 
       const response = await axios.get(url);
-      setEntries(response.data);
+      // Filter out posted entries
+      const unpostedEntries = response.data.filter((entry) => !entry.posted);
+      setEntries(unpostedEntries);
     } catch (error) {
       setError("Failed to fetch entries");
       console.error("Error fetching entries:", error);
@@ -283,7 +285,6 @@ function Entries() {
               <TableCell>Date</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Posted</TableCell>
               <TableCell>Transactions</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -299,7 +300,6 @@ function Entries() {
                 </TableCell>
                 <TableCell>{entry.entry_type}</TableCell>
                 <TableCell>{entry.status}</TableCell>
-                <TableCell>{entry.posted ? "Yes" : "No"}</TableCell>
                 <TableCell>{entry.transaction_ids?.length || 0}</TableCell>
                 <TableCell>
                   <IconButton
@@ -308,13 +308,6 @@ function Entries() {
                     title="Manage Transactions"
                   >
                     <ReceiptIcon />
-                  </IconButton>
-                  <IconButton
-                    color={entry.posted ? "success" : "primary"}
-                    onClick={() => handlePost(entry._id, entry.posted)}
-                    title={entry.posted ? "Unpost Entry" : "Post Entry"}
-                  >
-                    <CheckCircleIcon />
                   </IconButton>
                   <IconButton
                     color="primary"
@@ -407,21 +400,6 @@ function Entries() {
                     <MenuItem value="submitted">Submitted</MenuItem>
                     <MenuItem value="approved">Approved</MenuItem>
                     <MenuItem value="rejected">Rejected</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Posted</InputLabel>
-                  <Select
-                    name="posted"
-                    value={formData.posted}
-                    onChange={handleChange}
-                    label="Posted"
-                    required
-                  >
-                    <MenuItem value={true}>Yes</MenuItem>
-                    <MenuItem value={false}>No</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

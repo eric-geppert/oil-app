@@ -209,6 +209,17 @@ function Transactions() {
     }
   };
 
+  const calculateTransactionSum = () => {
+    return transactions.reduce(
+      (sum, transaction) => sum + Number(transaction.amount),
+      0
+    );
+  };
+
+  const isTransactionSumZero = () => {
+    return Math.abs(calculateTransactionSum()) < 0.01; // Using small epsilon for floating point comparison
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -236,6 +247,12 @@ function Transactions() {
               color={entry.posted ? "success" : "primary"}
               startIcon={<CheckCircleIcon />}
               onClick={() => handlePost(entry._id, entry.posted)}
+              disabled={!isTransactionSumZero()}
+              title={
+                !isTransactionSumZero()
+                  ? "All transactions must sum to zero before posting an entry"
+                  : ""
+              }
             >
               {entry.posted ? "Unpost Entry" : "Post Entry"}
             </Button>
@@ -253,6 +270,12 @@ function Transactions() {
 
       {error && <Alert severity="error">{error}</Alert>}
       {success && <Alert severity="success">{success}</Alert>}
+      {!isTransactionSumZero() && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Transaction sum: ${calculateTransactionSum().toFixed(2)} - All
+          transactions must sum to zero before posting
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         <Table>
