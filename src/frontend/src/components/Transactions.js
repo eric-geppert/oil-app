@@ -26,6 +26,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   ArrowBack as ArrowBackIcon,
+  CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import axios from "axios";
 
@@ -191,6 +192,23 @@ function Transactions() {
     return account ? account.name : accountId;
   };
 
+  const handlePost = async (entryId, currentPostedStatus) => {
+    try {
+      await axios.put(`${API_BASE_URL}/entries/${entryId}/post`, {
+        posted: !currentPostedStatus,
+      });
+      setSuccess(
+        `Entry ${currentPostedStatus ? "unposted" : "posted"} successfully`
+      );
+      fetchEntryTransactions();
+    } catch (error) {
+      setError(
+        error.response?.data?.error || "Failed to update entry posted status"
+      );
+      console.error("Error updating entry posted status:", error);
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -211,14 +229,26 @@ function Transactions() {
             {entry ? `Transactions for ${entry.title}` : "Transactions"}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpen()}
-        >
-          Add Transaction
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          {entry && (
+            <Button
+              variant="contained"
+              color={entry.posted ? "success" : "primary"}
+              startIcon={<CheckCircleIcon />}
+              onClick={() => handlePost(entry._id, entry.posted)}
+            >
+              {entry.posted ? "Unpost Entry" : "Post Entry"}
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpen()}
+          >
+            Add Transaction
+          </Button>
+        </Box>
       </Box>
 
       {error && <Alert severity="error">{error}</Alert>}
@@ -324,6 +354,9 @@ function Transactions() {
                   value={formData.description}
                   onChange={handleChange}
                   fullWidth
+                  required
+                  multiline
+                  rows={2}
                 />
               </Grid>
             </Grid>

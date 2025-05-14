@@ -25,13 +25,14 @@ class EntriesAPI:
                 - entry_date (datetime): Date of the entry
                 - entry_type (str): Type of entry (e.g., 'monthly', 'quarterly', 'annual')
                 - status (str): Status of the entry (e.g., 'draft', 'submitted', 'approved')
+                - posted (bool): Whether the entry has been posted (MANDATORY)
                 - created_at (datetime): Creation timestamp
                 
         Returns:
             str: The ID of the newly created entry
         """
         # Validate required fields
-        required_fields = ["title", "transaction_ids", "entry_date", "entry_type", "status"]
+        required_fields = ["title", "transaction_ids", "entry_date", "entry_type", "status", "posted"]
         for field in required_fields:
             if field not in entry_data:
                 raise ValueError(f"Missing required field: {field}")
@@ -45,6 +46,10 @@ class EntriesAPI:
         valid_statuses = ["draft", "submitted", "approved", "rejected"]
         if entry_data["status"] not in valid_statuses:
             raise ValueError(f"Invalid status. Must be one of: {valid_statuses}")
+        
+        # Validate posted is boolean
+        if not isinstance(entry_data["posted"], bool):
+            raise ValueError("posted must be a boolean value")
         
         # Add creation timestamp if not provided
         if "created_at" not in entry_data:
@@ -290,3 +295,22 @@ class EntriesAPI:
         
         # Convert ObjectIds to strings
         return [convert_objectid_to_str(entry) for entry in entries] 
+
+    @staticmethod
+    def update_entry_posted_status(entry_id: str, posted: bool) -> bool:
+        """
+        Update the posted status of an entry.
+        
+        Args:
+            entry_id (str): The ID of the entry to update
+            posted (bool): The new posted status
+            
+        Returns:
+            bool: True if the entry was updated, False otherwise
+        """
+        result = update_document(
+            entries_collection,
+            {"_id": ObjectId(entry_id)},
+            {"posted": posted}
+        )
+        return result > 0 

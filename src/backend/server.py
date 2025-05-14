@@ -220,7 +220,7 @@ def create_transaction():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['property_id', 'account_id', 'amount']
+        required_fields = ['property_id', 'account_id', 'amount', 'description']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -495,6 +495,24 @@ def remove_transaction_from_entry(entry_id, transaction_id):
         return jsonify({"message": "Transaction removed from entry successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/entries/<entry_id>/post', methods=['PUT'])
+def update_entry_posted_status(entry_id):
+    try:
+        data = request.get_json()
+        if 'posted' not in data:
+            return jsonify({'error': 'posted field is required'}), 400
+            
+        if not isinstance(data['posted'], bool):
+            return jsonify({'error': 'posted must be a boolean value'}), 400
+            
+        success = EntriesAPI.update_entry_posted_status(entry_id, data['posted'])
+        if success:
+            return jsonify({'message': 'Entry posted status updated successfully'})
+        else:
+            return jsonify({'error': 'Entry not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

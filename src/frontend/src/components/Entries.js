@@ -30,6 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Receipt as ReceiptIcon,
+  CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 
 const API_BASE_URL = "http://localhost:5001/api";
@@ -50,6 +51,7 @@ function Entries() {
     entry_type: "monthly",
     status: "draft",
     transaction_ids: [],
+    posted: false,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -117,6 +119,7 @@ function Entries() {
         entry_type: entry.entry_type || "monthly",
         status: entry.status || "draft",
         transaction_ids: entry.transaction_ids || [],
+        posted: entry.posted || false,
       });
     } else {
       setEditMode(false);
@@ -128,6 +131,7 @@ function Entries() {
         entry_type: "monthly",
         status: "draft",
         transaction_ids: [],
+        posted: false,
       });
     }
     setShowModal(true);
@@ -159,6 +163,7 @@ function Entries() {
       entry_type: "monthly",
       status: "draft",
       transaction_ids: [],
+      posted: false,
     });
   };
 
@@ -213,6 +218,21 @@ function Entries() {
     return property ? property.name : "Unknown Property";
   };
 
+  const handlePost = async (entryId, currentPostedStatus) => {
+    try {
+      await axios.put(`${API_BASE_URL}/entries/${entryId}/post`, {
+        posted: !currentPostedStatus,
+      });
+      setSuccess(
+        `Entry ${!currentPostedStatus ? "posted" : "unposted"} successfully`
+      );
+      fetchEntries();
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to update posted status");
+      console.error("Error updating posted status:", error);
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -263,6 +283,7 @@ function Entries() {
               <TableCell>Date</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Posted</TableCell>
               <TableCell>Transactions</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -278,6 +299,7 @@ function Entries() {
                 </TableCell>
                 <TableCell>{entry.entry_type}</TableCell>
                 <TableCell>{entry.status}</TableCell>
+                <TableCell>{entry.posted ? "Yes" : "No"}</TableCell>
                 <TableCell>{entry.transaction_ids?.length || 0}</TableCell>
                 <TableCell>
                   <IconButton
@@ -286,6 +308,13 @@ function Entries() {
                     title="Manage Transactions"
                   >
                     <ReceiptIcon />
+                  </IconButton>
+                  <IconButton
+                    color={entry.posted ? "success" : "primary"}
+                    onClick={() => handlePost(entry._id, entry.posted)}
+                    title={entry.posted ? "Unpost Entry" : "Post Entry"}
+                  >
+                    <CheckCircleIcon />
                   </IconButton>
                   <IconButton
                     color="primary"
@@ -378,6 +407,21 @@ function Entries() {
                     <MenuItem value="submitted">Submitted</MenuItem>
                     <MenuItem value="approved">Approved</MenuItem>
                     <MenuItem value="rejected">Rejected</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Posted</InputLabel>
+                  <Select
+                    name="posted"
+                    value={formData.posted}
+                    onChange={handleChange}
+                    label="Posted"
+                    required
+                  >
+                    <MenuItem value={true}>Yes</MenuItem>
+                    <MenuItem value={false}>No</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
