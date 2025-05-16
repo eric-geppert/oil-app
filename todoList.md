@@ -101,22 +101,38 @@ todo next time:
 - add aggregation by revenue and shiz
 
 ------- ignoring above for now
-5/12: had meeting with m and came up with below new understanding and next small critical steps to get general ledger and trends/summary working
+5/12/25: had meeting with m and came up with below new understanding and next small critical steps to get general ledger and trends/summary working
 5/13/25:
 
 - ✅update account to start with an initial balance (allow negatives)
-- Make user pick date on entry
-- remove date from transactions (all have to be on the same day)
-- add "post" functionality to the entries backend
-  - add new status: posted/pending
-- only have transactions that are "posted" be part of the trends
+- ✅remove date from transactions (all have to be on the same day)
+- ✅add "post" functionality to the entries backend
+  -✅ add new status: posted/pending
+- ✅added front end post button, grey out if not balanced, and warnings
+
+5/15/25:
+
+- update trends tab to use account balances
+
+  - update the balance to only be affected by posted transactions
+  - ? have temporary tab to be able to see posted transactions?
+
 - update the trends tab to be for the balance of the account at the end of the month (is she 100% sure about this?)
+- only have transactions that are "posted" be part of the trends
 
 - have trend -> click on march-> pull up TRANSACTIONS that effect the account (only POSTED ones) during that month -> when click you pull up the entry it goes with and all other transactions
 
-questions:
-ask mom about initial setup?
+later:
 
-- does someone walk through it with you?
-- it defaults with some values?
-- you can or can NOT go back once you've finished setting up?
+- deploy app
+- add user sign in and auth
+- add user to each transaction
+  - possibly the company they're connected with?
+  - how can I break up the transactions table that will just be massive?
+- should I have a field with current_balance in it ever for each account? How can I make the current balance calculation more efficient as over time there’s millions of transactions? since the initial balance source of truth?
+
+  - Maybe have a current balance then work backwards from the new entries?
+  - is it ever possible for these number to get off though?
+
+- need to support multiple companies (kramers different companies or another family each being a whole separate login etc?)
+- would they want to have the users above the companies or have each company have a list of users?

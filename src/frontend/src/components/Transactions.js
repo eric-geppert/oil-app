@@ -44,7 +44,7 @@ function Transactions() {
   const [formData, setFormData] = useState({
     property_id: "",
     account_id: "",
-    amount: "",
+    amount: 0,
     description: "",
   });
   const [error, setError] = useState("");
@@ -98,7 +98,7 @@ function Transactions() {
       setFormData({
         property_id: transaction.property_id,
         account_id: transaction.account_id,
-        amount: transaction.amount || "",
+        amount: Number(transaction.amount) || 0,
         description: transaction.description || "",
       });
     } else {
@@ -107,7 +107,7 @@ function Transactions() {
       setFormData({
         property_id: "",
         account_id: "",
-        amount: "",
+        amount: 0,
         description: "",
       });
     }
@@ -121,7 +121,7 @@ function Transactions() {
     setFormData({
       property_id: "",
       account_id: "",
-      amount: "",
+      amount: 0,
       description: "",
     });
   };
@@ -176,9 +176,11 @@ function Transactions() {
   };
 
   const handleChange = (e) => {
+    const value =
+      e.target.name === "amount" ? Number(e.target.value) : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
   };
 
@@ -295,7 +297,7 @@ function Transactions() {
                   {getPropertyName(transaction.property_id)}
                 </TableCell>
                 <TableCell>{getAccountName(transaction.account_id)}</TableCell>
-                <TableCell>${transaction.amount}</TableCell>
+                <TableCell>${Number(transaction.amount).toFixed(2)}</TableCell>
                 <TableCell>{transaction.description}</TableCell>
                 <TableCell>
                   <IconButton

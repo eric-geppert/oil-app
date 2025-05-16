@@ -24,40 +24,93 @@ const API_BASE_URL = "http://localhost:5001/api";
 
 function Trends() {
   const navigate = useNavigate();
-  const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState("");
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState("");
   const [years, setYears] = useState(3); // Default to 3 years
   const [trendData, setTrendData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchProperties();
+    fetchAccounts();
   }, []);
 
   useEffect(() => {
-    if (selectedProperty) {
+    if (selectedAccount) {
       fetchTrendData();
     }
-  }, [selectedProperty, years]);
+  }, [selectedAccount, years]);
 
-  const fetchProperties = async () => {
+  const fetchAccounts = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/properties`);
-      setProperties(response.data);
+      const response = await axios.get(`${API_BASE_URL}/accounts`);
+      setAccounts(response.data);
     } catch (error) {
-      setError("Failed to fetch properties");
-      console.error("Error fetching properties:", error);
+      setError("Failed to fetch accounts");
+      console.error("Error fetching accounts:", error);
     }
   };
 
   const fetchTrendData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/properties/${selectedProperty}/trends?years=${years}`
+      // Get initial account balance
+      const accountResponse = await axios.get(
+        `${API_BASE_URL}/accounts/${selectedAccount}`
       );
-      setTrendData(response.data);
+      const initialBalance = accountResponse.data.balance || 0;
+
+      // Get all transactions for the account
+      const transactionsResponse = await axios.get(
+        `${API_BASE_URL}/transactions`
+      );
+      const accountTransactions = transactionsResponse.data.filter(
+        (t) => t.account_id === selectedAccount
+      );
+
+      // Calculate monthly balances
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear - years + 1;
+      const monthlyBalances = {};
+
+      // Initialize monthly balances with initial balance
+      for (let year = startYear; year <= currentYear; year++) {
+        monthlyBalances[year] = {};
+        for (let month = 1; month <= 12; month++) {
+          monthlyBalances[year][month] = initialBalance;
+        }
+      }
+
+      // Sort transactions by date
+      accountTransactions.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+
+      // Calculate running balance for each transaction
+      let runningBalance = initialBalance;
+      for (const transaction of accountTransactions) {
+        const date = new Date(transaction.created_at);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+
+        if (year >= startYear && year <= currentYear) {
+          runningBalance += parseFloat(transaction.amount);
+          monthlyBalances[year][month] = runningBalance;
+        }
+      }
+
+      // Format data for display
+      const formattedData = Object.entries(monthlyBalances).map(
+        ([year, months]) => ({
+          year: parseInt(year),
+          monthly_data: Object.entries(months).map(([month, balance]) => ({
+            month: parseInt(month),
+            amount: balance,
+          })),
+        })
+      );
+
+      setTrendData(formattedData);
       setError("");
     } catch (error) {
       setError("Failed to fetch trend data");
@@ -84,7 +137,7 @@ function Trends() {
     navigate(`/entries`, {
       state: {
         filters: {
-          property_id: selectedProperty,
+          account_id: selectedAccount,
           year: year,
           month: month,
         },
@@ -95,7 +148,7 @@ function Trends() {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Property Income Trends
+        Account Balance Trends
       </Typography>
 
       {error && (
@@ -107,15 +160,15 @@ function Trends() {
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} md={6}>
           <FormControl fullWidth>
-            <InputLabel>Select Property</InputLabel>
+            <InputLabel>Select Account</InputLabel>
             <Select
-              value={selectedProperty}
-              label="Select Property"
-              onChange={(e) => setSelectedProperty(e.target.value)}
+              value={selectedAccount}
+              label="Select Account"
+              onChange={(e) => setSelectedAccount(e.target.value)}
             >
-              {properties.map((property) => (
-                <MenuItem key={property._id} value={property._id}>
-                  {property.name}
+              {accounts.map((account) => (
+                <MenuItem key={account._id} value={account._id}>
+                  {account.name} ({account.account_type})
                 </MenuItem>
               ))}
             </Select>
@@ -142,7 +195,7 @@ function Trends() {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
-      ) : selectedProperty && trendData.length > 0 ? (
+      ) : selectedAccount && trendData.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -187,9 +240,9 @@ function Trends() {
             </TableBody>
           </Table>
         </TableContainer>
-      ) : selectedProperty ? (
+      ) : selectedAccount ? (
         <Typography variant="body1" sx={{ mt: 2 }}>
-          No trend data available for the selected property.
+          No trend data available for the selected account.
         </Typography>
       ) : null}
     </Box>
