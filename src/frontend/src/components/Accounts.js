@@ -38,7 +38,7 @@ const Accounts = () => {
     bank_name: "",
     description: "",
     status: "active",
-    balance: "",
+    balance: 0,
   });
 
   const accountTypes = ["checking", "savings", "investment", "credit", "other"];
@@ -67,7 +67,7 @@ const Accounts = () => {
         bank_name: account.bank_name || "",
         description: account.description || "",
         status: account.status,
-        balance: account.balance || "",
+        balance: Number(account.balance) || 0,
       });
     } else {
       setEditMode(false);
@@ -79,7 +79,7 @@ const Accounts = () => {
         bank_name: "",
         description: "",
         status: "active",
-        balance: "",
+        balance: 0,
       });
     }
     setOpen(true);
@@ -96,7 +96,7 @@ const Accounts = () => {
       bank_name: "",
       description: "",
       status: "active",
-      balance: "",
+      balance: 0,
     });
   };
 
@@ -130,9 +130,11 @@ const Accounts = () => {
   };
 
   const handleChange = (e) => {
+    const value =
+      e.target.name === "balance" ? Number(e.target.value) : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
   };
 

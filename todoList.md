@@ -112,9 +112,25 @@ todo next time:
 
 5/15/25:
 
-- update trends tab to use account balances
+- ✅update trends tab to use account balances
+- ✅updated transactions being saved as strings when creating or updating transactions
+- ✅created this query to update all transaction strings in mongoDB compass to be numbers
+  - ANSWER✅:
+    - stage1: $addFields: (the add fields goes in mongoDbs dropdown box)
+      - {amount: {$convert: { input: "$amount",to: "double", onError: null, onNull: null}}}
+    - stage2: $merge:
+      - { into: "transactions"}
+- ✅found wasn't calculating balance right at all, went to fix it and realized we needed a balance snapshots collection
+- ✅did good amount of research on this with my boy chatgpt
 
-  - update the balance to only be affected by posted transactions
+  - ANSWER✅:
+    - we want a new collection balance_snapshots
+    - calculated on a MongoDB atlas Trigger -> will update to AWS lambda later when needed
+    - WEEKLY to start, to make sure it works, later on yearly
+    - Performance limits Subject to MongoDB’s execution time limits (e.g., 10 min)
+    - MAY NEED TO UPGRADE TO CRON JOB SOON depending on how resource intensive this is.
+
+- - update the balance to only be affected by posted transactions
   - ? have temporary tab to be able to see posted transactions?
 
 - update the trends tab to be for the balance of the account at the end of the month (is she 100% sure about this?)
